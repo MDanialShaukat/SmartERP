@@ -5,10 +5,239 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SmartERP.UI"
         mc:Ignorable="d"
-        Title="MainWindow" 
+        Title="SmartERP - Business Management System" 
         WindowState="Maximized"
-        WindowStyle="SingleBorderWindow">
-    <Grid>
+        WindowStyle="SingleBorderWindow" Height="491">
+    
+    <Window.Resources>
+        <!-- Menu Button Style -->
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="0,2,0,2"/>
+            <Setter Property="Padding" Value="20,0,0,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="0"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#005A9E"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#004578"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
+        <!-- Active Menu Button Style -->
+        <Style x:Key="ActiveMenuButtonStyle" TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+            <Setter Property="Background" Value="#005A9E"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- Logout Button Style -->
+        <Style x:Key="LogoutButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#D32F2F"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="10,10,10,10"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#B71C1C"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#8B0000"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar Navigation -->
+        <Border Grid.Column="0" 
+                Background="#007ACC"
+                BorderThickness="0,0,1,0"
+                BorderBrush="#CCCCCC">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <Border Grid.Row="0" 
+                        Background="#005A9E" 
+                        Padding="20,25">
+                    <StackPanel>
+                        <TextBlock Text="SmartERP"
+                                  FontSize="24"
+                                  FontWeight="Bold"
+                                  Foreground="White"
+                                  HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="UserInfoText"
+                                  Text="Welcome, User"
+                                  FontSize="12"
+                                  Foreground="#E0E0E0"
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Navigation Menu -->
+                <ScrollViewer Grid.Row="1" 
+                             VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,20,0,0">
+                        <!-- Dashboard -->
+                        <Button x:Name="DashboardButton"
+                               Style="{StaticResource ActiveMenuButtonStyle}"
+                               Click="DashboardButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🏠" FontSize="18" Margin="0,0,15,0"/>
+                                <TextBlock Text="Dashboard" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Inventory -->
+                        <Button x:Name="InventoryButton"
+                               Style="{StaticResource MenuButtonStyle}"
+                               Click="InventoryButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📦" FontSize="18" Margin="0,0,15,0"/>
+                                <TextBlock Text="Inventory" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Customers -->
+                        <Button x:Name="CustomersButton"
+                               Style="{StaticResource MenuButtonStyle}"
+                               Click="CustomersButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="👥" FontSize="18" Margin="0,0,15,0"/>
+                                <TextBlock Text="Customers" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Billing -->
+                        <Button x:Name="BillingButton"
+                               Style="{StaticResource MenuButtonStyle}"
+                               Click="BillingButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="💳" FontSize="18" Margin="0,0,15,0"/>
+                                <TextBlock Text="Billing" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Reports (Admin Only) -->
+                        <Button x:Name="ReportsButton"
+                               Style="{StaticResource MenuButtonStyle}"
+                               Click="ReportsButton_Click"
+                               Visibility="Collapsed">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📊" FontSize="18" Margin="0,0,15,0"/>
+                                <TextBlock Text="Reports" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- User Management (Admin Only) -->
+                        <Button x:Name="UserManagementButton"
+                               Style="{StaticResource MenuButtonStyle}"
+                               Click="UserManagementButton_Click"
+                               Visibility="Collapsed">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="👤" FontSize="18" Margin="0,0,15,0"/>
+                                <TextBlock Text="User Management" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Logout Button at Bottom -->
+                <Button Grid.Row="2"
+                       x:Name="LogoutButton"
+                       Style="{StaticResource LogoutButtonStyle}"
+                       Click="LogoutButton_Click">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="🚪" FontSize="18" Margin="0,0,10,0"/>
+                        <TextBlock Text="Logout" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Column="1" Background="#F5F5F5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top Bar -->
+            <Border Grid.Row="0" 
+                    Background="White" 
+                    BorderThickness="0,0,0,1"
+                    BorderBrush="#E0E0E0"
+                    Padding="30,20">
+                <Grid>
+                    <TextBlock x:Name="PageTitleText"
+                              Text="Dashboard"
+                              FontSize="24"
+                              FontWeight="SemiBold"
+                              Foreground="#333333"
+                              VerticalAlignment="Center"/>
+                    
+                    <StackPanel Orientation="Horizontal" 
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center">
+                        <TextBlock x:Name="CurrentDateText"
+                                  FontSize="14"
+                                  Foreground="#666666"
+                                  VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Content Frame -->
+            <Frame Grid.Row="1" 
+                   x:Name="ContentFrame"
+                   NavigationUIVisibility="Hidden"
+                   Margin="20"/>
+        </Grid>
     </Grid>
 </Window>
