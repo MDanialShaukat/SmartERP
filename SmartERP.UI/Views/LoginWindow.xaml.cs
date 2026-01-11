@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Input;
 using SmartERP.Core.Services;
 
 namespace SmartERP.UI.Views
@@ -14,6 +15,14 @@ namespace SmartERP.UI.Views
             
             // Set focus to username textbox
             Loaded += (s, e) => UsernameTextBox.Focus();
+        }
+
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                LoginButton_Click(sender, e);
+            }
         }
 
         private async void LoginButton_Click(object sender, RoutedEventArgs e)
