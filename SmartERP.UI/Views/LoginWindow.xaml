@@ -69,7 +69,16 @@
             </Border.Effect>
 
             <StackPanel Margin="40,30,40,30">
-                <!-- Logo/Title -->
+                <!-- Logo - Uncomment when logo.png is added to Assets folder -->
+                <!--
+                <Image Source="/Assets/logo.png" 
+                       Width="100" 
+                       Height="100" 
+                       Margin="0,0,0,20"
+                       HorizontalAlignment="Center"/>
+                -->
+
+                <!-- Title -->
                 <TextBlock Text="SmartERP"
                           FontSize="32"
                           FontWeight="Bold"

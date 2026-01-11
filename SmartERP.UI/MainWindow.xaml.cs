@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using SmartERP.Core.Services;
+using SmartERP.Data;
 using SmartERP.UI.Views;
 
 namespace SmartERP.UI;
@@ -12,12 +13,14 @@ namespace SmartERP.UI;
 public partial class MainWindow : Window
 {
     private readonly IAuthenticationService _authService;
+    private readonly IUnitOfWork _unitOfWork;
     private Button? _activeButton;
 
-    public MainWindow(IAuthenticationService authService)
+    public MainWindow(IAuthenticationService authService, IUnitOfWork unitOfWork)
     {
         InitializeComponent();
         _authService = authService;
+        _unitOfWork = unitOfWork;
         
         // Display user info in title
         if (_authService.CurrentUser != null)
@@ -64,7 +67,7 @@ public partial class MainWindow : Window
     {
         SetActiveButton(InventoryButton);
         PageTitleText.Text = "Inventory Management";
-        ContentFrame.Navigate(new InventoryPage());
+        ContentFrame.Navigate(new InventoryPage(_unitOfWork, _authService));
     }
 
     private void CustomersButton_Click(object sender, RoutedEventArgs e)

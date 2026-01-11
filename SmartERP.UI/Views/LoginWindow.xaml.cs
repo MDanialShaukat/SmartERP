@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using SmartERP.Core.Services;
+using SmartERP.Data;
 
 namespace SmartERP.UI.Views
 {
@@ -44,8 +46,9 @@ namespace SmartERP.UI.Views
 
                 if (user != null)
                 {
-                    // Login successful - open main window
-                    var mainWindow = new MainWindow(_authService);
+                    // Login successful - get MainWindow from DI
+                    var unitOfWork = App.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                    var mainWindow = new MainWindow(_authService, unitOfWork);
                     mainWindow.Show();
                     this.Close();
                 }

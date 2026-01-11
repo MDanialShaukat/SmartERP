@@ -49,18 +49,22 @@ public partial class App : Application
         // Configuration
         services.AddSingleton(Configuration);
 
-        // Database Context
-        services.AddDbContext<SmartERPDbContext>(options =>
-            options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+        // Database Context - Use Singleton for WPF to avoid disposed context issues
+        services.AddSingleton<SmartERPDbContext>(provider =>
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<SmartERPDbContext>();
+            optionsBuilder.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+            return new SmartERPDbContext(optionsBuilder.Options);
+        });
 
         // Repositories
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IInventoryRepository, InventoryRepository>();
-        services.AddScoped<ICustomerRepository, CustomerRepository>();
-        services.AddScoped<IBillingRepository, BillingRepository>();
+        services.AddSingleton<IUserRepository, UserRepository>();
+        services.AddSingleton<IInventoryRepository, InventoryRepository>();
+        services.AddSingleton<ICustomerRepository, CustomerRepository>();
+        services.AddSingleton<IBillingRepository, BillingRepository>();
 
         // Unit of Work
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
         // Services
         services.AddSingleton<IAuthenticationService, AuthenticationService>();
