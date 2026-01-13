@@ -52,6 +52,7 @@ namespace SmartERP.Core.Services
             {
                 "Inventory.View",
                 "Inventory.Update",
+                "Customer.View",
                 "Billing.View",
                 "Billing.Add",
                 "Billing.Update"

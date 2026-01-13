@@ -74,14 +74,7 @@ public partial class MainWindow : Window
     {
         SetActiveButton(CustomersButton);
         PageTitleText.Text = "Customer Management";
-        // TODO: Navigate to Customers page
-        ContentFrame.Content = new TextBlock 
-        { 
-            Text = "Customer Management - Coming Soon", 
-            FontSize = 24, 
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
+        ContentFrame.Navigate(new CustomerPage(_unitOfWork, _authService));
     }
 
     private void BillingButton_Click(object sender, RoutedEventArgs e)
