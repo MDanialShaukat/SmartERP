@@ -80,15 +80,8 @@ public partial class MainWindow : Window
     private void BillingButton_Click(object sender, RoutedEventArgs e)
     {
         SetActiveButton(BillingButton);
-        PageTitleText.Text = "Billing";
-        // TODO: Navigate to Billing page
-        ContentFrame.Content = new TextBlock 
-        { 
-            Text = "Billing - Coming Soon", 
-            FontSize = 24, 
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
+        PageTitleText.Text = "Billing Management";
+        ContentFrame.Navigate(new BillingPage(_unitOfWork, _authService));
     }
 
     private void ReportsButton_Click(object sender, RoutedEventArgs e)
