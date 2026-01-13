@@ -119,7 +119,7 @@
                             BorderBrush="#CCCCCC"
                             BorderThickness="1"
                             KeyDown="SearchTextBox_KeyDown"/>
-                    <Button Content="?? Search"
+                    <Button Content="🔍 Search"
                            Style="{StaticResource ActionButtonStyle}"
                            Margin="10,0,0,0"
                            Click="SearchButton_Click"/>
@@ -128,19 +128,19 @@
                 <!-- Action Buttons -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button x:Name="AddButton"
-                           Content="? Add New"
+                           Content="➕ Add New"
                            Style="{StaticResource AddButtonStyle}"
                            Click="AddButton_Click"/>
                     <Button x:Name="EditButton"
-                           Content="?? Edit"
+                           Content="✏️ Edit"
                            Style="{StaticResource ActionButtonStyle}"
                            Click="EditButton_Click"/>
                     <Button x:Name="DeleteButton"
-                           Content="??? Delete"
+                           Content="🗑️ Delete"
                            Style="{StaticResource DeleteButtonStyle}"
                            Click="DeleteButton_Click"/>
                     <Button x:Name="RefreshButton"
-                           Content="?? Refresh"
+                           Content="🔄 Refresh"
                            Style="{StaticResource ActionButtonStyle}"
                            Click="RefreshButton_Click"/>
                 </StackPanel>
