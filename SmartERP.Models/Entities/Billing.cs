@@ -60,12 +60,20 @@ namespace SmartERP.Models.Entities
         [MaxLength(500)]
         public string Notes { get; set; } = string.Empty;
 
+        // Audit Fields
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public DateTime? LastModifiedDate { get; set; }
 
+        [Required]
         public int CreatedBy { get; set; }
 
+        [ForeignKey("CreatedBy")]
+        public User? CreatedByUser { get; set; }
+
         public int? LastModifiedBy { get; set; }
+
+        [ForeignKey("LastModifiedBy")]
+        public User? LastModifiedByUser { get; set; }
     }
 }

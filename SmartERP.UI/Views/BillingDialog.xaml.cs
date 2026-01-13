@@ -119,6 +119,26 @@ namespace SmartERP.UI.Views
             PaymentDatePicker.SelectedDate = billing.PaymentDate;
             NotesTextBox.Text = billing.Notes;
 
+            // Display audit information
+            if (AuditInfoPanel != null)
+            {
+                AuditInfoPanel.Visibility = System.Windows.Visibility.Visible;
+                
+                CreatedByText.Text = billing.CreatedByUser?.FullName ?? "Unknown";
+                CreatedDateText.Text = billing.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss");
+                
+                if (billing.LastModifiedBy.HasValue && billing.LastModifiedByUser != null)
+                {
+                    LastModifiedByText.Text = billing.LastModifiedByUser.FullName;
+                    LastModifiedDateText.Text = billing.LastModifiedDate?.ToString("dd/MM/yyyy HH:mm:ss") ?? "-";
+                }
+                else
+                {
+                    LastModifiedByText.Text = "Not modified";
+                    LastModifiedDateText.Text = "-";
+                }
+            }
+
             CalculateTotals(null, null);
         }
 

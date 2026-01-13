@@ -16,6 +16,8 @@ namespace SmartERP.Data.Repositories
         public async Task<IEnumerable<Inventory>> GetLowStockItemsAsync(int threshold = 10)
         {
             return await _dbSet
+                .Include(i => i.CreatedByUser)
+                .Include(i => i.LastModifiedByUser)
                 .Where(i => i.QuantityRemaining <= threshold)
                 .OrderBy(i => i.QuantityRemaining)
                 .ToListAsync();
@@ -24,6 +26,8 @@ namespace SmartERP.Data.Repositories
         public async Task<IEnumerable<Inventory>> GetByCategoryAsync(string category)
         {
             return await _dbSet
+                .Include(i => i.CreatedByUser)
+                .Include(i => i.LastModifiedByUser)
                 .Where(i => i.Category == category)
                 .OrderBy(i => i.ItemName)
                 .ToListAsync();
@@ -41,6 +45,22 @@ namespace SmartERP.Data.Repositories
             inventory.LastModifiedDate = DateTime.Now;
 
             await UpdateAsync(inventory);
+        }
+
+        public override async Task<IEnumerable<Inventory>> GetAllAsync()
+        {
+            return await _dbSet
+                .Include(i => i.CreatedByUser)
+                .Include(i => i.LastModifiedByUser)
+                .ToListAsync();
+        }
+
+        public override async Task<Inventory?> GetByIdAsync(int id)
+        {
+            return await _dbSet
+                .Include(i => i.CreatedByUser)
+                .Include(i => i.LastModifiedByUser)
+                .FirstOrDefaultAsync(i => i.Id == id);
         }
     }
 }

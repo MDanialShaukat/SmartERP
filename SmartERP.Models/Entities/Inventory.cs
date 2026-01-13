@@ -44,15 +44,23 @@ namespace SmartERP.Models.Entities
 
         public DateTime PurchaseDate { get; set; } = DateTime.Now;
 
+        [MaxLength(500)]
+        public string Notes { get; set; } = string.Empty;
+
+        // Audit Fields
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public DateTime? LastModifiedDate { get; set; }
 
+        [Required]
         public int CreatedBy { get; set; }
+
+        [ForeignKey("CreatedBy")]
+        public User? CreatedByUser { get; set; }
 
         public int? LastModifiedBy { get; set; }
 
-        [MaxLength(500)]
-        public string Notes { get; set; } = string.Empty;
+        [ForeignKey("LastModifiedBy")]
+        public User? LastModifiedByUser { get; set; }
     }
 }

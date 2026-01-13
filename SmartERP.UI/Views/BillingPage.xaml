@@ -400,6 +400,18 @@
                     <DataGridTextColumn Header="Payment Method" 
                                        Binding="{Binding PaymentMethod}" 
                                        Width="120"/>
+                    
+                    <DataGridTextColumn Header="Created By" 
+                                       Binding="{Binding CreatedByUser.FullName}" 
+                                       Width="150"/>
+                    
+                    <DataGridTextColumn Header="Last Modified By" 
+                                       Binding="{Binding LastModifiedByUser.FullName}" 
+                                       Width="150"/>
+                    
+                    <DataGridTextColumn Header="Last Modified Date" 
+                                       Binding="{Binding LastModifiedDate, StringFormat=dd/MM/yyyy HH:mm}" 
+                                       Width="150"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

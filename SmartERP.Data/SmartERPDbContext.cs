@@ -29,6 +29,32 @@ namespace SmartERP.Data
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.HasIndex(e => e.CustomerCode).IsUnique();
+
+                // Configure audit relationships
+                entity.HasOne(e => e.CreatedByUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.CreatedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.LastModifiedByUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.LastModifiedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure Inventory entity
+            modelBuilder.Entity<Inventory>(entity =>
+            {
+                // Configure audit relationships
+                entity.HasOne(e => e.CreatedByUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.CreatedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.LastModifiedByUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.LastModifiedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Configure Billing entity
@@ -40,6 +66,17 @@ namespace SmartERP.Data
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasIndex(e => e.BillNumber).IsUnique();
+
+                // Configure audit relationships
+                entity.HasOne(e => e.CreatedByUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.CreatedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.LastModifiedByUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.LastModifiedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Seed default Admin user

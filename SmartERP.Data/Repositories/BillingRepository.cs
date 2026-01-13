@@ -17,6 +17,8 @@ namespace SmartERP.Data.Repositories
         {
             return await _dbSet
                 .Include(b => b.Customer)
+                .Include(b => b.CreatedByUser)
+                .Include(b => b.LastModifiedByUser)
                 .Where(b => b.CustomerId == customerId)
                 .OrderByDescending(b => b.BillingYear)
                 .ThenByDescending(b => b.BillingMonth)
@@ -27,6 +29,8 @@ namespace SmartERP.Data.Repositories
         {
             return await _dbSet
                 .Include(b => b.Customer)
+                .Include(b => b.CreatedByUser)
+                .Include(b => b.LastModifiedByUser)
                 .Where(b => b.PaymentStatus == "Pending" || b.PaymentStatus == "Partial")
                 .OrderBy(b => b.DueDate)
                 .ToListAsync();
@@ -38,6 +42,8 @@ namespace SmartERP.Data.Repositories
             
             return await _dbSet
                 .Include(b => b.Customer)
+                .Include(b => b.CreatedByUser)
+                .Include(b => b.LastModifiedByUser)
                 .Where(b => (b.PaymentStatus == "Pending" || b.PaymentStatus == "Partial") 
                            && b.DueDate < today)
                 .OrderBy(b => b.DueDate)
@@ -48,6 +54,8 @@ namespace SmartERP.Data.Repositories
         {
             return await _dbSet
                 .Include(b => b.Customer)
+                .Include(b => b.CreatedByUser)
+                .Include(b => b.LastModifiedByUser)
                 .Where(b => b.BillingMonth == month && b.BillingYear == year)
                 .OrderBy(b => b.Customer!.CustomerName)
                 .ToListAsync();
@@ -57,6 +65,8 @@ namespace SmartERP.Data.Repositories
         {
             return await _dbSet
                 .Include(b => b.Customer)
+                .Include(b => b.CreatedByUser)
+                .Include(b => b.LastModifiedByUser)
                 .FirstOrDefaultAsync(b => b.BillNumber == billNumber);
         }
 
@@ -82,6 +92,24 @@ namespace SmartERP.Data.Repositories
             }
 
             return $"BILL-{year}{month}-{nextNumber:D4}";
+        }
+
+        public override async Task<IEnumerable<Billing>> GetAllAsync()
+        {
+            return await _dbSet
+                .Include(b => b.Customer)
+                .Include(b => b.CreatedByUser)
+                .Include(b => b.LastModifiedByUser)
+                .ToListAsync();
+        }
+
+        public override async Task<Billing?> GetByIdAsync(int id)
+        {
+            return await _dbSet
+                .Include(b => b.Customer)
+                .Include(b => b.CreatedByUser)
+                .Include(b => b.LastModifiedByUser)
+                .FirstOrDefaultAsync(b => b.Id == id);
         }
     }
 }
