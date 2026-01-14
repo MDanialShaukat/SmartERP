@@ -88,28 +88,14 @@ public partial class MainWindow : Window
     {
         SetActiveButton(ReportsButton);
         PageTitleText.Text = "Reports";
-        // TODO: Navigate to Reports page
-        ContentFrame.Content = new TextBlock 
-        { 
-            Text = "Reports - Coming Soon", 
-            FontSize = 24, 
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
+        ContentFrame.Navigate(new ReportsPage(_unitOfWork, _authService));
     }
 
     private void UserManagementButton_Click(object sender, RoutedEventArgs e)
     {
         SetActiveButton(UserManagementButton);
         PageTitleText.Text = "User Management";
-        // TODO: Navigate to User Management page
-        ContentFrame.Content = new TextBlock 
-        { 
-            Text = "User Management - Coming Soon", 
-            FontSize = 24, 
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
+        ContentFrame.Navigate(new UserManagementPage(_unitOfWork, _authService));
     }
 
     private void LogoutButton_Click(object sender, RoutedEventArgs e)
@@ -133,25 +119,28 @@ public partial class MainWindow : Window
         }
     }
 
+    private void NavigateToPage(string pageName)
+    {
+        switch (pageName)
+        {
+            case "Billing":
+                BillingButton_Click(BillingButton, new RoutedEventArgs());
+                break;
+            case "Customers":
+                CustomersButton_Click(CustomersButton, new RoutedEventArgs());
+                break;
+            case "Inventory":
+                InventoryButton_Click(InventoryButton, new RoutedEventArgs());
+                break;
+            case "Reports":
+                ReportsButton_Click(ReportsButton, new RoutedEventArgs());
+                break;
+        }
+    }
+
     private void ShowDashboard()
     {
         PageTitleText.Text = "Dashboard";
-        
-        // Create simple dashboard
-        var dashboardGrid = new Grid { Margin = new Thickness(20) };
-        dashboardGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        
-        var welcomeText = new TextBlock
-        {
-            Text = $"Welcome back, {_authService.CurrentUser?.FullName}!",
-            FontSize = 28,
-            FontWeight = FontWeights.SemiBold,
-            Foreground = System.Windows.Media.Brushes.Gray,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-        
-        dashboardGrid.Children.Add(welcomeText);
-        ContentFrame.Content = dashboardGrid;
+        ContentFrame.Navigate(new DashboardPage(_unitOfWork, _authService, NavigateToPage));
     }
 }

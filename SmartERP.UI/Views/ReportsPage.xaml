@@ -1,0 +1,396 @@
+<Page x:Class="SmartERP.UI.Views.ReportsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:SmartERP.UI.Views"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="ReportsPage">
+
+    <Page.Resources>
+        <!-- Card Style -->
+        <Style x:Key="ReportCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#007ACC"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#007ACC" ShadowDepth="0" BlurRadius="10" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Button Style -->
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="5"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#005A9E"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ExportButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#4CAF50"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#388E3C"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+
+    <Grid Background="#F5F5F5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header Section -->
+        <Border Grid.Row="0" 
+                Background="White" 
+                Padding="30,20"
+                BorderThickness="0,0,0,1"
+                BorderBrush="#E0E0E0">
+            <Grid>
+                <StackPanel>
+                    <TextBlock Text="Reports &amp; Analytics"
+                              FontSize="24"
+                              FontWeight="SemiBold"
+                              Foreground="#333333"/>
+                    <TextBlock Text="Generate comprehensive reports for business insights"
+                              FontSize="14"
+                              Foreground="#666666"
+                              Margin="0,5,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Reports Grid -->
+        <ScrollViewer Grid.Row="1" 
+                     VerticalScrollBarVisibility="Auto"
+                     Padding="20">
+            <StackPanel>
+                <!-- Report Categories -->
+                <TextBlock Text="Billing Reports"
+                          FontSize="18"
+                          FontWeight="SemiBold"
+                          Foreground="#333333"
+                          Margin="10,10,10,15"/>
+
+                <Grid Margin="0,0,0,30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Monthly Billing Report -->
+                    <Border Grid.Column="0" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="MonthlyBillingReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Monthly Billing Summary"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#007ACC"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Comprehensive billing report for selected month with payment status and outstanding amounts"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="MonthlyBillingReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Overdue Bills Report -->
+                    <Border Grid.Column="1" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="OverdueBillsReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Overdue Bills"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#D32F2F"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="List of all overdue bills with customer details and outstanding amounts"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="OverdueBillsReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Payment Collection Report -->
+                    <Border Grid.Column="2" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="PaymentCollectionReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Payment Collection"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#4CAF50"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Payment collection summary by date range with payment methods breakdown"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="PaymentCollectionReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Customer Reports -->
+                <TextBlock Text="Customer Reports"
+                          FontSize="18"
+                          FontWeight="SemiBold"
+                          Foreground="#333333"
+                          Margin="10,10,10,15"/>
+
+                <Grid Margin="0,0,0,30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Active Customers Report -->
+                    <Border Grid.Column="0" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="ActiveCustomersReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Active Customers"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#007ACC"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="List of all active customers with package details and outstanding balances"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="ActiveCustomersReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Customer Outstanding Report -->
+                    <Border Grid.Column="1" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="CustomerOutstandingReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Customer Outstanding"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#FF9800"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Customers with outstanding balances sorted by amount"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="CustomerOutstandingReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- New Customers Report -->
+                    <Border Grid.Column="2" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="NewCustomersReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="New Customers"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#4CAF50"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Recently added customers within selected date range"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="NewCustomersReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Inventory Reports -->
+                <TextBlock Text="Inventory Reports"
+                          FontSize="18"
+                          FontWeight="SemiBold"
+                          Foreground="#333333"
+                          Margin="10,10,10,15"/>
+
+                <Grid Margin="0,0,0,30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Stock Status Report -->
+                    <Border Grid.Column="0" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="StockStatusReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Stock Status"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#007ACC"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Current stock levels of all inventory items with low stock alerts"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="StockStatusReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Low Stock Alert Report -->
+                    <Border Grid.Column="1" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="LowStockReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Low Stock Alert"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#D32F2F"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Items that need immediate restocking based on threshold"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="LowStockReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Inventory Value Report -->
+                    <Border Grid.Column="2" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="InventoryValueReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Inventory Valuation"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#4CAF50"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Total inventory value with category-wise breakdown"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="InventoryValueReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- System Reports -->
+                <TextBlock Text="System Reports"
+                          FontSize="18"
+                          FontWeight="SemiBold"
+                          Foreground="#333333"
+                          Margin="10,10,10,15"/>
+
+                <Grid Margin="0,0,0,30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- User Activity Report -->
+                    <Border Grid.Column="0" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="UserActivityReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="User Activity"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#007ACC"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="User login history and activity tracking"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="UserActivityReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Dashboard Summary -->
+                    <Border Grid.Column="1" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="DashboardSummaryReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Dashboard Summary"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#FF9800"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Overall business metrics and key performance indicators"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="DashboardSummaryReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>
