@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SmartERP.UI"
         mc:Ignorable="d"
-        Title="SmartERP - Business Management System" 
+        Title="SmartERP - Business Management System"
+        Icon="/Assets/SmartERP.ico"
         WindowState="Maximized"
         WindowStyle="SingleBorderWindow" Height="491">
     

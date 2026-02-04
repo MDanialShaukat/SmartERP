@@ -21,6 +21,7 @@ public partial class App : Application
     public static IServiceProvider ServiceProvider { get; private set; } = null!;
     public static IConfiguration Configuration { get; private set; } = null!;
     private static ILoggingService? _loggingService;
+    private static IDatabaseSecurityService? _databaseSecurityService;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -51,6 +52,9 @@ public partial class App : Application
             await InitializeDatabaseAsync();
             _loggingService.LogInformation("Database initialized successfully", "App");
 
+            // Secure database
+            await SecureDatabaseAsync();
+
             // Show login window
             var loginWindow = ServiceProvider.GetRequiredService<LoginWindow>();
             loginWindow.Show();
@@ -62,6 +66,53 @@ public partial class App : Application
                 "Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown();
         }
+    }
+
+    private async Task SecureDatabaseAsync()
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                var secureDatabaseOnStartup = bool.Parse(Configuration["Security:SecureDatabaseOnStartup"] ?? "true");
+                var verifyIntegrity = bool.Parse(Configuration["Security:VerifyDatabaseIntegrity"] ?? "true");
+
+                if (!secureDatabaseOnStartup && !verifyIntegrity)
+                    return;
+
+                _databaseSecurityService = ServiceProvider.GetService<IDatabaseSecurityService>();
+                if (_databaseSecurityService == null)
+                {
+                    _loggingService?.LogWarning("Database security service not available", "App");
+                    return;
+                }
+
+                var databasePath = Configuration.GetConnectionString("DefaultConnection")
+                    ?.Replace("Data Source=", "") ?? "SmartERP.db";
+
+                // Verify database integrity
+                if (verifyIntegrity)
+                {
+                    var isValid = _databaseSecurityService.VerifyDatabaseIntegrity(databasePath);
+                    if (!isValid)
+                    {
+                        _loggingService?.LogWarning("Database integrity check failed - database may be corrupted", "App");
+                    }
+                }
+
+                // Secure database file
+                if (secureDatabaseOnStartup)
+                {
+                    _databaseSecurityService.SecureDatabaseFile(databasePath);
+                }
+
+                _loggingService?.LogInformation("Database security checks completed", "App");
+            }
+            catch (Exception ex)
+            {
+                _loggingService?.LogError("Database security initialization failed", ex, "App");
+            }
+        });
     }
 
     private void SetupExceptionHandlers()
@@ -105,6 +156,12 @@ public partial class App : Application
 
         // Logging Service - Add first so other services can use it
         services.AddSingleton<ILoggingService, FileLoggingService>();
+
+        // Encryption Service
+        services.AddSingleton<IEncryptionService, EncryptionService>();
+
+        // Database Security Service
+        services.AddSingleton<IDatabaseSecurityService, DatabaseSecurityService>();
 
         // Database Context - Use Singleton for WPF to avoid disposed context issues
         services.AddSingleton<SmartERPDbContext>(provider =>

@@ -14,8 +14,9 @@
     </None>
   </ItemGroup>
 
+  <!-- Include icon resources -->
   <ItemGroup>
-    <Resource Include="Assets\logo.png" />
+    <Resource Include="Assets\SmartERP.ico" Condition="Exists('Assets\SmartERP.ico')" />
   </ItemGroup>
 
   <ItemGroup>
