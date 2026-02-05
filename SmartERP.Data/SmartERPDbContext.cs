@@ -34,12 +34,14 @@ namespace SmartERP.Data
                 entity.HasOne(e => e.CreatedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.CreatedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .IsRequired(false);
 
                 entity.HasOne(e => e.LastModifiedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.LastModifiedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .IsRequired(false);
             });
 
             // Configure Inventory entity
@@ -49,12 +51,14 @@ namespace SmartERP.Data
                 entity.HasOne(e => e.CreatedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.CreatedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .IsRequired(false);
 
                 entity.HasOne(e => e.LastModifiedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.LastModifiedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .IsRequired(false);
             });
 
             // Configure Billing entity
@@ -71,26 +75,28 @@ namespace SmartERP.Data
                 entity.HasOne(e => e.CreatedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.CreatedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .IsRequired(false);
 
                 entity.HasOne(e => e.LastModifiedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.LastModifiedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .IsRequired(false);
             });
 
-            // Seed default Admin user
+            // Seed default Admin user - use fixed datetime to avoid configuration issues
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
                     Id = 1,
                     Username = "admin",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"), // Default password
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
                     Role = "Admin",
                     FullName = "System Administrator",
                     Email = "admin@smarterp.local",
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0)
                 }
             );
         }

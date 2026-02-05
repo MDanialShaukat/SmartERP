@@ -65,8 +65,7 @@ namespace SmartERP.Models.Entities
 
         public DateTime? LastModifiedDate { get; set; }
 
-        [Required]
-        public int CreatedBy { get; set; }
+        public int? CreatedBy { get; set; }
 
         [ForeignKey("CreatedBy")]
         public User? CreatedByUser { get; set; }

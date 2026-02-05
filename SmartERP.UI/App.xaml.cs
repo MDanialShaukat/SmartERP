@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
@@ -30,12 +31,29 @@ public partial class App : Application
         // Setup global exception handlers
         SetupExceptionHandlers();
 
-        // Build configuration
+        // Ensure required directories exist
+        EnsureRequiredDirectories();
+
+        // Build configuration with fallback
         var builder = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
         Configuration = builder.Build();
+
+        // Validate configuration
+        var connectionString = Configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            MessageBox.Show(
+                "Configuration Error: appsettings.json is missing or misconfigured.\n\n" +
+                "Please ensure appsettings.json exists in the application directory: " + 
+                Directory.GetCurrentDirectory() + "\n\n" +
+                "Application will now exit.",
+                "Configuration Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Shutdown();
+            return;
+        }
 
         // Setup dependency injection
         var serviceCollection = new ServiceCollection();
@@ -45,6 +63,8 @@ public partial class App : Application
         // Get logging service
         _loggingService = ServiceProvider.GetRequiredService<ILoggingService>();
         _loggingService.LogInformation("Application starting...", "App");
+        _loggingService.LogInformation($"Application Directory: {Directory.GetCurrentDirectory()}", "App");
+        _loggingService.LogInformation($"Connection String: {connectionString}", "App");
 
         try
         {
@@ -65,6 +85,29 @@ public partial class App : Application
             MessageBox.Show($"Failed to start application: {ex.Message}\n\nPlease check the logs for details.",
                 "Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown();
+        }
+    }
+
+    private void EnsureRequiredDirectories()
+    {
+        try
+        {
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var directories = new[] { "Logs", "Data", "Backups" };
+
+            foreach (var dir in directories)
+            {
+                var fullPath = Path.Combine(baseDir, dir);
+                if (!Directory.Exists(fullPath))
+                {
+                    Directory.CreateDirectory(fullPath);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // If directory creation fails, log it but don't crash
+            Debug.WriteLine($"Failed to create required directories: {ex.Message}");
         }
     }
 
@@ -155,7 +198,10 @@ public partial class App : Application
         services.AddSingleton(Configuration);
 
         // Logging Service - Add first so other services can use it
-        services.AddSingleton<ILoggingService, FileLoggingService>();
+        // Use "Logs" folder in the application directory
+        var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+        Directory.CreateDirectory(logPath); // Ensure directory exists
+        services.AddSingleton<ILoggingService>(new FileLoggingService(logPath));
 
         // Encryption Service
         services.AddSingleton<IEncryptionService, EncryptionService>();
@@ -201,11 +247,42 @@ public partial class App : Application
 
     private async Task InitializeDatabaseAsync()
     {
-        using var scope = ServiceProvider.CreateScope();
-        var dbInitializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
-        
-        await dbInitializer.InitializeAsync();
-        await dbInitializer.SeedDataAsync();
+        try
+        {
+            using var scope = ServiceProvider.CreateScope();
+            var dbInitializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
+            
+            _loggingService?.LogInformation("Starting database initialization...", "DatabaseInit");
+            await dbInitializer.InitializeAsync();
+            _loggingService?.LogInformation("Database structure created/verified", "DatabaseInit");
+            
+            await dbInitializer.SeedDataAsync();
+            _loggingService?.LogInformation("Database seeding completed", "DatabaseInit");
+        }
+        catch (FileNotFoundException fnex)
+        {
+            _loggingService?.LogError("Configuration file not found", fnex, "DatabaseInit");
+            throw new InvalidOperationException(
+                "Failed to initialize database: Configuration file (appsettings.json) is missing.\n\n" +
+                "Please ensure appsettings.json exists in the application directory.\n" +
+                "Current Directory: " + Directory.GetCurrentDirectory(), fnex);
+        }
+        catch (InvalidOperationException ioex) when (ioex.Message.Contains("appsettings"))
+        {
+            _loggingService?.LogError("Configuration error", ioex, "DatabaseInit");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _loggingService?.LogError("Database initialization failed", ex, "DatabaseInit");
+            throw new InvalidOperationException(
+                "Failed to initialize database.\n\n" +
+                "Error: " + ex.Message + "\n\n" +
+                "Please check that:\n" +
+                "1. appsettings.json exists and is properly configured\n" +
+                "2. The database path is writable\n" +
+                "3. All required directories exist (Logs, Data, Backups)", ex);
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)
