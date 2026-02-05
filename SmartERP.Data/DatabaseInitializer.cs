@@ -27,14 +27,9 @@ namespace SmartERP.Data
                     await _context.Database.MigrateAsync();
                 }
             }
-            catch (InvalidOperationException ioex)
-            {
-                // Handle missing configuration or other IO issues
-                throw new InvalidOperationException("Failed to initialize database. Ensure appsettings.json exists in the application directory.", ioex);
-            }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Failed to initialize database", ex);
+                throw new InvalidOperationException($"Failed to initialize database: {ex.GetType().Name} - {ex.Message}", ex);
             }
         }
 
@@ -46,7 +41,7 @@ namespace SmartERP.Data
                 if (await _context.Users.AnyAsync())
                     return;
 
-                // Seed default admin user from model configuration if not present
+                // Seed default admin user
                 var adminExists = await _context.Users.AnyAsync(u => u.Username == "admin");
                 
                 if (!adminExists)
@@ -88,8 +83,7 @@ namespace SmartERP.Data
             }
             catch (Exception ex)
             {
-                // Log but don't fail if seeding encounters issues
-                throw new InvalidOperationException("Failed to seed database with default users", ex);
+                throw new InvalidOperationException($"Failed to seed database with default users: {ex.GetType().Name} - {ex.Message}", ex);
             }
         }
     }

@@ -34,10 +34,11 @@ public partial class App : Application
         // Ensure required directories exist
         EnsureRequiredDirectories();
 
-        // Build configuration with fallback
+        // Build configuration - Look for appsettings.json in the application binary directory
+        var appDir = AppDomain.CurrentDomain.BaseDirectory;
         var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            .SetBasePath(appDir)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
         Configuration = builder.Build();
 
@@ -47,8 +48,7 @@ public partial class App : Application
         {
             MessageBox.Show(
                 "Configuration Error: appsettings.json is missing or misconfigured.\n\n" +
-                "Please ensure appsettings.json exists in the application directory: " + 
-                Directory.GetCurrentDirectory() + "\n\n" +
+                "Please ensure appsettings.json exists in: " + appDir + "\n\n" +
                 "Application will now exit.",
                 "Configuration Error", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown();
@@ -63,11 +63,17 @@ public partial class App : Application
         // Get logging service
         _loggingService = ServiceProvider.GetRequiredService<ILoggingService>();
         _loggingService.LogInformation("Application starting...", "App");
-        _loggingService.LogInformation($"Application Directory: {Directory.GetCurrentDirectory()}", "App");
+        _loggingService.LogInformation($"Application Directory: {appDir}", "App");
+        _loggingService.LogInformation($"Base Directory: {AppDomain.CurrentDomain.BaseDirectory}", "App");
         _loggingService.LogInformation($"Connection String: {connectionString}", "App");
 
         try
         {
+            // Prepare database before initialization
+            _loggingService.LogInformation("Preparing database environment...", "App");
+            DatabaseSetupHelper.PrepareDatabase(Configuration, AppDomain.CurrentDomain.BaseDirectory);
+            _loggingService.LogInformation("✓ Database environment prepared", "App");
+
             // Initialize database
             await InitializeDatabaseAsync();
             _loggingService.LogInformation("Database initialized successfully", "App");
@@ -93,11 +99,17 @@ public partial class App : Application
         try
         {
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            
+            // For installed applications, data directory is one level up from bin
+            var isInstalledApp = baseDir.EndsWith("bin", StringComparison.OrdinalIgnoreCase);
+            var dataBaseDir = isInstalledApp ? Path.Combine(baseDir, "..") : baseDir;
+            dataBaseDir = Path.GetFullPath(dataBaseDir);
+            
             var directories = new[] { "Logs", "Data", "Backups" };
 
             foreach (var dir in directories)
             {
-                var fullPath = Path.Combine(baseDir, dir);
+                var fullPath = Path.Combine(dataBaseDir, dir);
                 if (!Directory.Exists(fullPath))
                 {
                     Directory.CreateDirectory(fullPath);
@@ -212,9 +224,25 @@ public partial class App : Application
         // Database Context - Use Singleton for WPF to avoid disposed context issues
         services.AddSingleton<SmartERPDbContext>(provider =>
         {
-            var optionsBuilder = new DbContextOptionsBuilder<SmartERPDbContext>();
-            optionsBuilder.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
-            return new SmartERPDbContext(optionsBuilder.Options);
+            try
+            {
+                var config = provider.GetRequiredService<IConfiguration>();
+                var connectionString = config.GetConnectionString("DefaultConnection");
+                
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException("DefaultConnection not configured in appsettings.json");
+                }
+
+                var optionsBuilder = new DbContextOptionsBuilder<SmartERPDbContext>();
+                optionsBuilder.UseSqlServer(connectionString);
+                
+                return new SmartERPDbContext(optionsBuilder.Options);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to initialize database context: {ex.GetType().Name} - {ex.Message}", ex);
+            }
         });
 
         // Backup Service
@@ -249,39 +277,61 @@ public partial class App : Application
     {
         try
         {
+            _loggingService?.LogInformation("=== DATABASE INITIALIZATION START ===", "DatabaseInit");
+            
             using var scope = ServiceProvider.CreateScope();
             var dbInitializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
             
-            _loggingService?.LogInformation("Starting database initialization...", "DatabaseInit");
-            await dbInitializer.InitializeAsync();
-            _loggingService?.LogInformation("Database structure created/verified", "DatabaseInit");
+            _loggingService?.LogInformation("DatabaseInitializer retrieved from service provider", "DatabaseInit");
             
+            // Initialize database structure
+            _loggingService?.LogInformation("Calling InitializeAsync()...", "DatabaseInit");
+            await dbInitializer.InitializeAsync();
+            _loggingService?.LogInformation("✓ Database structure created/verified", "DatabaseInit");
+            
+            // Seed default data
+            _loggingService?.LogInformation("Calling SeedDataAsync()...", "DatabaseInit");
             await dbInitializer.SeedDataAsync();
-            _loggingService?.LogInformation("Database seeding completed", "DatabaseInit");
+            _loggingService?.LogInformation("✓ Database seeding completed", "DatabaseInit");
+            
+            _loggingService?.LogInformation("=== DATABASE INITIALIZATION SUCCESS ===", "DatabaseInit");
         }
         catch (FileNotFoundException fnex)
         {
-            _loggingService?.LogError("Configuration file not found", fnex, "DatabaseInit");
+            _loggingService?.LogCritical("CRITICAL: Configuration file not found", fnex, "DatabaseInit");
+            _loggingService?.LogCritical($"File: {fnex.FileName}", null, "DatabaseInit");
+            _loggingService?.LogCritical($"Stack Trace: {fnex.StackTrace}", null, "DatabaseInit");
+            
             throw new InvalidOperationException(
                 "Failed to initialize database: Configuration file (appsettings.json) is missing.\n\n" +
                 "Please ensure appsettings.json exists in the application directory.\n" +
                 "Current Directory: " + Directory.GetCurrentDirectory(), fnex);
         }
-        catch (InvalidOperationException ioex) when (ioex.Message.Contains("appsettings"))
+        catch (InvalidOperationException ioex)
         {
-            _loggingService?.LogError("Configuration error", ioex, "DatabaseInit");
+            _loggingService?.LogCritical("CRITICAL: Invalid Operation during database initialization", ioex, "DatabaseInit");
+            _loggingService?.LogCritical($"Message: {ioex.Message}", null, "DatabaseInit");
+            _loggingService?.LogCritical($"Inner Exception: {ioex.InnerException?.Message}", null, "DatabaseInit");
+            _loggingService?.LogCritical($"Stack Trace: {ioex.StackTrace}", null, "DatabaseInit");
+            
             throw;
         }
         catch (Exception ex)
         {
-            _loggingService?.LogError("Database initialization failed", ex, "DatabaseInit");
+            _loggingService?.LogCritical($"CRITICAL: Unexpected error during database initialization - {ex.GetType().FullName}", ex, "DatabaseInit");
+            _loggingService?.LogCritical($"Message: {ex.Message}", null, "DatabaseInit");
+            _loggingService?.LogCritical($"Inner Exception: {ex.InnerException?.Message}", null, "DatabaseInit");
+            _loggingService?.LogCritical($"Stack Trace: {ex.StackTrace}", null, "DatabaseInit");
+            
             throw new InvalidOperationException(
-                "Failed to initialize database.\n\n" +
-                "Error: " + ex.Message + "\n\n" +
+                $"Failed to initialize database.\n\n" +
+                $"Exception Type: {ex.GetType().FullName}\n" +
+                $"Error: {ex.Message}\n\n" +
                 "Please check that:\n" +
                 "1. appsettings.json exists and is properly configured\n" +
                 "2. The database path is writable\n" +
-                "3. All required directories exist (Logs, Data, Backups)", ex);
+                "3. All required directories exist (Logs, Data, Backups)\n" +
+                "4. Check the Logs folder for detailed error information", ex);
         }
     }
 
