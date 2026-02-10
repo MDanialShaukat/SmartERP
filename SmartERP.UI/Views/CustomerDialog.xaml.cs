@@ -23,6 +23,7 @@ namespace SmartERP.UI.Views
                 DialogTitle.Text = "Edit Customer";
                 CustomerCodeTextBox.IsReadOnly = true; // Don't allow changing customer code
                 CustomerCodeTextBox.Background = System.Windows.Media.Brushes.LightGray;
+                GenerateCodeButton.IsEnabled = false; // Disable generate button in edit mode
             }
             else
             {
@@ -170,6 +171,35 @@ namespace SmartERP.UI.Views
             }
 
             return true;
+        }
+
+        private void GenerateCodeButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CustomerCodeTextBox.Text = GenerateUniqueCustomerCode();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error generating customer code: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string GenerateUniqueCustomerCode()
+        {
+            // Generate format: CUST-YYYYMMDD-XXXXXX (where X is random alphanumeric)
+            var date = DateTime.Now.ToString("yyyyMMdd");
+            var random = new Random();
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var randomPart = "";
+            
+            for (int i = 0; i < 6; i++)
+            {
+                randomPart += chars[random.Next(chars.Length)];
+            }
+            
+            return $"CUST-{date}-{randomPart}";
         }
     }
 }

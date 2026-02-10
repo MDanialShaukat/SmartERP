@@ -101,6 +101,33 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="3"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#005A9E"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -136,7 +163,21 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Customer Code *" Style="{StaticResource LabelStyle}"/>
-                        <TextBox x:Name="CustomerCodeTextBox"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="CustomerCodeTextBox" Grid.Column="0"/>
+                            <Button x:Name="GenerateCodeButton"
+                                   Grid.Column="1"
+                                   Content="?? Generate"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Margin="5,0,0,0"
+                                   Padding="10,8"
+                                   Height="35"
+                                   Click="GenerateCodeButton_Click"/>
+                        </Grid>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
@@ -291,10 +332,10 @@
                 Padding="20,15">
             <StackPanel Orientation="Horizontal" 
                        HorizontalAlignment="Right">
-                <Button Content="✅ Save" 
+                <Button Content="? Save" 
                        Style="{StaticResource SaveButtonStyle}"
                        Click="SaveButton_Click"/>
-                <Button Content="❎ Cancel" 
+                <Button Content="? Cancel" 
                        Style="{StaticResource CancelButtonStyle}"
                        Click="CancelButton_Click"/>
             </StackPanel>
