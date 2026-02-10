@@ -1,4 +1,4 @@
-<Window x:Class="SmartERP.UI.Views.CustomerDialog"
+﻿<Window x:Class="SmartERP.UI.Views.CustomerDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Add/Edit Customer"
@@ -171,7 +171,7 @@
                             <TextBox x:Name="CustomerCodeTextBox" Grid.Column="0"/>
                             <Button x:Name="GenerateCodeButton"
                                    Grid.Column="1"
-                                   Content="?? Generate"
+                                   Content="🔄 Generate"
                                    Style="{StaticResource ActionButtonStyle}"
                                    Margin="5,0,0,0"
                                    Padding="10,8"
@@ -332,10 +332,10 @@
                 Padding="20,15">
             <StackPanel Orientation="Horizontal" 
                        HorizontalAlignment="Right">
-                <Button Content="? Save" 
+                <Button Content="✅ Save" 
                        Style="{StaticResource SaveButtonStyle}"
                        Click="SaveButton_Click"/>
-                <Button Content="? Cancel" 
+                <Button Content="❎ Cancel" 
                        Style="{StaticResource CancelButtonStyle}"
                        Click="CancelButton_Click"/>
             </StackPanel>

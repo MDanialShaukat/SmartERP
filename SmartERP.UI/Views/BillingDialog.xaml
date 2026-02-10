@@ -162,7 +162,7 @@
                     </StackPanel>
 
                     <Button Grid.Column="2" 
-                           Content="Generate"
+                           Content="🔄 Generate"
                            Style="{StaticResource GenerateButtonStyle}"
                            Click="GenerateBillNumberButton_Click"
                            VerticalAlignment="Bottom"/>
