@@ -135,6 +135,14 @@
                            Content="✏️ Edit"
                            Style="{StaticResource ActionButtonStyle}"
                            Click="EditButton_Click"/>
+                    <Button x:Name="AssignButton"
+                           Content="🎯 Assign"
+                           Style="{StaticResource ActionButtonStyle}"
+                           Click="AssignButton_Click"/>
+                    <Button x:Name="HistoryButton"
+                           Content="📋 History"
+                           Style="{StaticResource ActionButtonStyle}"
+                           Click="HistoryButton_Click"/>
                     <Button x:Name="DeleteButton"
                            Content="🗑️ Delete"
                            Style="{StaticResource DeleteButtonStyle}"

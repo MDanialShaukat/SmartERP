@@ -17,12 +17,14 @@ namespace SmartERP.Data
             Inventories = new InventoryRepository(_context);
             Customers = new CustomerRepository(_context);
             Billings = new BillingRepository(_context);
+            InventoryAssignments = new InventoryAssignmentRepository(_context);
         }
 
         public IUserRepository Users { get; }
         public IInventoryRepository Inventories { get; }
         public ICustomerRepository Customers { get; }
         public IBillingRepository Billings { get; }
+        public IInventoryAssignmentRepository InventoryAssignments { get; }
 
         public async Task<int> SaveChangesAsync()
         {

@@ -10,6 +10,7 @@ namespace SmartERP.Data
         IInventoryRepository Inventories { get; }
         ICustomerRepository Customers { get; }
         IBillingRepository Billings { get; }
+        IInventoryAssignmentRepository InventoryAssignments { get; }
         
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();

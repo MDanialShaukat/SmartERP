@@ -179,6 +179,56 @@ namespace SmartERP.UI.Views
             }
         }
 
+        private async void AssignButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedInventory == null)
+            {
+                MessageBox.Show("Please select an inventory item to assign.", "No Selection", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if (_selectedInventory.QuantityRemaining <= 0)
+            {
+                MessageBox.Show($"No inventory available for assignment. Available quantity: {_selectedInventory.QuantityRemaining}", 
+                    "Insufficient Stock", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var dialog = new InventoryAssignmentDialog(_unitOfWork, _selectedInventory, _authService.CurrentUser!.Id);
+            
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    StatusText.Text = "Assignment completed successfully";
+                    await LoadInventoryDataAsync();
+                    
+                    MessageBox.Show("Inventory assigned successfully!", "Success", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error during assignment: {ex.Message}", "Error", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    StatusText.Text = "Error during assignment";
+                }
+            }
+        }
+
+        private async void HistoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedInventory == null)
+            {
+                MessageBox.Show("Please select an inventory item to view its assignment history.", "No Selection", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var dialog = new InventoryAssignmentHistoryDialog(_unitOfWork, _selectedInventory);
+            dialog.ShowDialog();
+        }
+
         private async void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
             await LoadInventoryDataAsync();

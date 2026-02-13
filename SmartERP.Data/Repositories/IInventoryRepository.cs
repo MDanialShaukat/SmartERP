@@ -9,5 +9,6 @@ namespace SmartERP.Data.Repositories
         Task<IEnumerable<Inventory>> GetLowStockItemsAsync(int threshold = 10);
         Task<IEnumerable<Inventory>> GetByCategoryAsync(string category);
         Task UpdateQuantityAsync(int inventoryId, int quantityUsed);
+        Task<InventoryAssignment> AssignInventoryAsync(int inventoryId, int userId, int quantityAssigned, string remarks = "", int? createdBy = null);
     }
 }

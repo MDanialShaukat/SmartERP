@@ -13,6 +13,17 @@ namespace SmartERP.Data
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Billing> Billings { get; set; }
+        public DbSet<InventoryAssignment> InventoryAssignments { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            
+            // Suppress the PendingModelChangesWarning since we're using EnsureCreatedAsync
+            // which creates schema directly from the model, not migrations
+            optionsBuilder.ConfigureWarnings(w => 
+                w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -81,6 +92,26 @@ namespace SmartERP.Data
                 entity.HasOne(e => e.LastModifiedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.LastModifiedBy)
+                      .OnDelete(DeleteBehavior.NoAction)
+                      .IsRequired(false);
+            });
+
+            // Configure InventoryAssignment entity
+            modelBuilder.Entity<InventoryAssignment>(entity =>
+            {
+                entity.HasOne(ia => ia.Inventory)
+                      .WithMany()
+                      .HasForeignKey(ia => ia.InventoryId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(ia => ia.AssignedToUser)
+                      .WithMany()
+                      .HasForeignKey(ia => ia.AssignedToUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(ia => ia.CreatedByUser)
+                      .WithMany()
+                      .HasForeignKey(ia => ia.CreatedBy)
                       .OnDelete(DeleteBehavior.NoAction)
                       .IsRequired(false);
             });
