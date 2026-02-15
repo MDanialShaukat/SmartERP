@@ -19,6 +19,7 @@ namespace SmartERP.UI.Views
         private readonly IAuthenticationService _authService;
         private readonly ReportType _reportType;
         private List<object> _reportData;
+        private List<Area> _areas;
 
         public ReportViewerDialog(IUnitOfWork unitOfWork, IAuthenticationService authService, ReportType reportType)
         {
@@ -27,6 +28,7 @@ namespace SmartERP.UI.Views
             _authService = authService;
             _reportType = reportType;
             _reportData = new List<object>();
+            _areas = new List<Area>();
 
             InitializeReport();
         }
@@ -39,106 +41,154 @@ namespace SmartERP.UI.Views
                 case ReportType.MonthlyBilling:
                     ReportTitle.Text = "Monthly Billing Summary Report";
                     MonthYearPanel.Visibility = Visibility.Visible;
-                    DateRangePanel.Visibility = Visibility.Collapsed;
+                    DateRangePanel.Visibility = Visibility.Visible;
+                    AreaFilterPanel.Visibility = Visibility.Visible;
                     break;
 
                 case ReportType.OverdueBills:
                     ReportTitle.Text = "Overdue Bills Report";
                     DateRangePanel.Visibility = Visibility.Collapsed;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.PaymentCollection:
                     ReportTitle.Text = "Payment Collection Report";
                     DateRangePanel.Visibility = Visibility.Visible;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.ActiveCustomers:
                     ReportTitle.Text = "Active Customers Report";
                     DateRangePanel.Visibility = Visibility.Collapsed;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.CustomerOutstanding:
                     ReportTitle.Text = "Customer Outstanding Report";
                     DateRangePanel.Visibility = Visibility.Collapsed;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.NewCustomers:
                     ReportTitle.Text = "New Customers Report";
                     DateRangePanel.Visibility = Visibility.Visible;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.StockStatus:
                     ReportTitle.Text = "Stock Status Report";
                     DateRangePanel.Visibility = Visibility.Collapsed;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.LowStock:
                     ReportTitle.Text = "Low Stock Alert Report";
                     DateRangePanel.Visibility = Visibility.Collapsed;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.InventoryValue:
                     ReportTitle.Text = "Inventory Valuation Report";
                     DateRangePanel.Visibility = Visibility.Collapsed;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.AssignmentSummary:
                     ReportTitle.Text = "Inventory Assignment Summary Report";
                     DateRangePanel.Visibility = Visibility.Visible;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.AssignmentByUser:
                     ReportTitle.Text = "Inventory Assignments by User Report";
                     DateRangePanel.Visibility = Visibility.Visible;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.AssignmentByItem:
                     ReportTitle.Text = "Inventory Assignments by Item Report";
                     DateRangePanel.Visibility = Visibility.Visible;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.AssignmentDetails:
                     ReportTitle.Text = "Inventory Assignment Details Report";
                     DateRangePanel.Visibility = Visibility.Visible;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.AssignmentTrend:
                     ReportTitle.Text = "Inventory Assignment Trends Report";
                     DateRangePanel.Visibility = Visibility.Collapsed;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.UserActivity:
                     ReportTitle.Text = "User Activity Report";
                     DateRangePanel.Visibility = Visibility.Visible;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
 
                 case ReportType.DashboardSummary:
                     ReportTitle.Text = "Dashboard Summary Report";
                     DateRangePanel.Visibility = Visibility.Collapsed;
                     MonthYearPanel.Visibility = Visibility.Collapsed;
+                    AreaFilterPanel.Visibility = Visibility.Collapsed;
                     break;
             }
 
             // Initialize Month/Year dropdowns
             InitializeMonthYear();
+            
+            // Load areas
+            LoadAreasAsync();
 
             // Initialize date range
             FromDatePicker.SelectedDate = DateTime.Now.AddMonths(-1);
             ToDatePicker.SelectedDate = DateTime.Now;
+        }
+
+        private async void LoadAreasAsync()
+        {
+            try
+            {
+                var areas = await _unitOfWork.Areas.GetActiveAreasAsync();
+                _areas = areas.ToList();
+
+                // Add "All Areas" option at the beginning
+                ReportAreaComboBox.Items.Add(new Area { Id = 0, AreaName = "All Areas" });
+
+                // Add all areas
+                foreach (var area in _areas)
+                {
+                    ReportAreaComboBox.Items.Add(area);
+                }
+
+                // Select "All Areas" by default
+                if (ReportAreaComboBox.Items.Count > 0)
+                {
+                    ReportAreaComboBox.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading areas: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void InitializeMonthYear()
@@ -233,13 +283,28 @@ namespace SmartERP.UI.Views
         {
             var month = int.Parse(((ComboBoxItem)MonthComboBox.SelectedItem).Tag.ToString()!);
             var year = int.Parse(((ComboBoxItem)YearComboBox.SelectedItem).Tag.ToString()!);
+            var fromDate = FromDatePicker.SelectedDate ?? DateTime.Now.AddMonths(-1);
+            var toDate = ToDatePicker.SelectedDate ?? DateTime.Now;
 
             var billings = await _unitOfWork.Billings.GetBillsByMonthYearAsync(month, year);
+            
+            // Apply date range filter
+            billings = billings.Where(b => 
+                b.BillDate.Date >= fromDate.Date && 
+                b.BillDate.Date <= toDate.Date).ToList();
+
+            // Apply area filter
+            var selectedArea = ReportAreaComboBox.SelectedItem as Area;
+            if (selectedArea != null && selectedArea.Id > 0)
+            {
+                billings = billings.Where(b => b.Customer?.AreaId == selectedArea.Id).ToList();
+            }
             
             var reportData = billings.Select(b => new
             {
                 BillNumber = b.BillNumber,
                 CustomerName = b.Customer?.CustomerName ?? "N/A",
+                Area = b.Customer?.Area?.AreaName ?? "N/A",
                 BillDate = b.BillDate.ToString("dd/MM/yyyy"),
                 BillAmount = b.BillAmount,
                 PreviousDue = b.PreviousDue,
@@ -257,6 +322,7 @@ namespace SmartERP.UI.Views
             // Add columns
             AddDataGridColumn("Bill Number", "BillNumber");
             AddDataGridColumn("Customer", "CustomerName");
+            AddDataGridColumn("Area", "Area");
             AddDataGridColumn("Bill Date", "BillDate");
             AddDataGridColumn("Bill Amount", "BillAmount", "C2");
             AddDataGridColumn("Previous Due", "PreviousDue", "C2");

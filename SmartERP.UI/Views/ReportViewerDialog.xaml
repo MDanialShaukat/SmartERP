@@ -130,6 +130,19 @@
                     <ComboBox x:Name="YearComboBox" Width="100" Margin="0,0,15,0"/>
                 </StackPanel>
 
+                <!-- Area Filter for Monthly Billing Report -->
+                <StackPanel x:Name="AreaFilterPanel" Orientation="Horizontal" Margin="0,0,20,0" Visibility="Collapsed">
+                    <TextBlock Text="Area:" 
+                              VerticalAlignment="Center"
+                              Margin="0,0,10,0"
+                              FontSize="13"/>
+                    <ComboBox x:Name="ReportAreaComboBox" 
+                             Width="150"
+                             DisplayMemberPath="AreaName"
+                             SelectedValuePath="Id"
+                             Margin="0,0,15,0"/>
+                </StackPanel>
+
                 <Button Content="Generate Report"
                        Style="{StaticResource ActionButtonStyle}"
                        Click="GenerateReport_Click"/>
