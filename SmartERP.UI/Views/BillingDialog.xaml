@@ -350,34 +350,34 @@
                     <ComboBoxItem Content="Overdue"/>
                 </ComboBox>
 
-                <!-- Payment Method and Transaction Reference -->
-                <Grid Margin="0,0,0,15">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="15"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <!-- Payment Method -->
+                <TextBlock Text="Payment Method" Style="{StaticResource LabelStyle}"/>
+                <ComboBox x:Name="PaymentMethodComboBox" 
+                         SelectionChanged="PaymentMethodComboBox_SelectionChanged"
+                         Margin="0,0,0,15">
+                    <ComboBoxItem Content="Cash"/>
+                    <ComboBoxItem Content="Online Payment"/>
+                </ComboBox>
 
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Payment Method" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox x:Name="PaymentMethodComboBox" 
-                                 IsEditable="True"
-                                 SelectionChanged="PaymentMethodComboBox_SelectionChanged">
-                            <ComboBoxItem Content="Cash"/>
-                            <ComboBoxItem Content="UPI"/>
-                            <ComboBoxItem Content="Bank Transfer"/>
-                            <ComboBoxItem Content="Credit Card"/>
-                            <ComboBoxItem Content="Debit Card"/>
-                            <ComboBoxItem Content="Cheque"/>
-                            <ComboBoxItem Content="Online Payment"/>
-                        </ComboBox>
-                    </StackPanel>
+                <!-- Online Payment Type (Visible only for Online Payment) -->
+                <StackPanel x:Name="OnlinePaymentPanel"
+                           Visibility="Collapsed"
+                           Margin="0,0,0,15">
+                    <TextBlock Text="Online Payment Type *" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox x:Name="OnlinePaymentTypeComboBox">
+                        <ComboBoxItem Content="Bank Transfer"/>
+                        <ComboBoxItem Content="JazzCash"/>
+                        <ComboBoxItem Content="EasyPaisa"/>
+                    </ComboBox>
+                </StackPanel>
 
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Transaction Reference" Style="{StaticResource LabelStyle}"/>
-                        <TextBox x:Name="TransactionReferenceTextBox"/>
-                    </StackPanel>
-                </Grid>
+                <!-- Transaction Reference (Visible only for Online Payment) -->
+                <StackPanel x:Name="TransactionReferencePanel"
+                           Visibility="Collapsed"
+                           Margin="0,0,0,15">
+                    <TextBlock Text="Reference Number *" Style="{StaticResource LabelStyle}"/>
+                    <TextBox x:Name="TransactionReferenceTextBox"/>
+                </StackPanel>
 
                 <!-- Recovery Person (Visible only for Cash payment) -->
                 <Border x:Name="RecoveryPersonPanel"

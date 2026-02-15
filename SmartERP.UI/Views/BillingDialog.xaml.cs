@@ -174,7 +174,45 @@ namespace SmartERP.UI.Views
             AmountPaidTextBox.Text = billing.AmountPaid.ToString("F2");
             
             PaymentStatusComboBox.Text = billing.PaymentStatus;
-            PaymentMethodComboBox.Text = billing.PaymentMethod;
+            
+            // Handle payment method - it may be "Cash" or "Online Payment - [Type]"
+            if (billing.PaymentMethod.StartsWith("Online Payment"))
+            {
+                PaymentMethodComboBox.Text = "Online Payment";
+                
+                // Extract the payment type if stored in the PaymentMethod field
+                if (billing.PaymentMethod.Contains("Bank Transfer"))
+                {
+                    OnlinePaymentTypeComboBox.Text = "Bank Transfer";
+                }
+                else if (billing.PaymentMethod.Contains("JazzCash"))
+                {
+                    OnlinePaymentTypeComboBox.Text = "JazzCash";
+                }
+                else if (billing.PaymentMethod.Contains("EasyPaisa"))
+                {
+                    OnlinePaymentTypeComboBox.Text = "EasyPaisa";
+                }
+                
+                RecoveryPersonPanel.Visibility = System.Windows.Visibility.Collapsed;
+                OnlinePaymentPanel.Visibility = System.Windows.Visibility.Visible;
+                TransactionReferencePanel.Visibility = System.Windows.Visibility.Visible;
+            }
+            else if (billing.PaymentMethod == "Cash")
+            {
+                PaymentMethodComboBox.Text = "Cash";
+                RecoveryPersonPanel.Visibility = System.Windows.Visibility.Visible;
+                OnlinePaymentPanel.Visibility = System.Windows.Visibility.Collapsed;
+                TransactionReferencePanel.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else
+            {
+                PaymentMethodComboBox.Text = billing.PaymentMethod;
+                RecoveryPersonPanel.Visibility = System.Windows.Visibility.Collapsed;
+                OnlinePaymentPanel.Visibility = System.Windows.Visibility.Collapsed;
+                TransactionReferencePanel.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            
             TransactionReferenceTextBox.Text = billing.TransactionReference;
             PaymentDatePicker.SelectedDate = billing.PaymentDate;
             
@@ -182,16 +220,6 @@ namespace SmartERP.UI.Views
             if (billing.RecoveryPersonId.HasValue)
             {
                 RecoveryPersonComboBox.SelectedValue = billing.RecoveryPersonId;
-            }
-            
-            // Show/hide recovery person panel based on payment method
-            if (billing.PaymentMethod == "Cash")
-            {
-                RecoveryPersonPanel.Visibility = System.Windows.Visibility.Visible;
-            }
-            else
-            {
-                RecoveryPersonPanel.Visibility = System.Windows.Visibility.Collapsed;
             }
             
             NotesTextBox.Text = billing.Notes;
@@ -333,18 +361,35 @@ namespace SmartERP.UI.Views
         private void PaymentMethodComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Show Recovery Person panel only for Cash payment method
-            // Use SelectedItem instead of Text to get the current selection immediately
+            // Show Online Payment Type and Transaction Reference for Online Payment
             var selectedItem = PaymentMethodComboBox.SelectedItem as ComboBoxItem;
             string selectedMethod = selectedItem?.Content.ToString() ?? "";
             
             if (selectedMethod == "Cash")
             {
                 RecoveryPersonPanel.Visibility = System.Windows.Visibility.Visible;
+                OnlinePaymentPanel.Visibility = System.Windows.Visibility.Collapsed;
+                TransactionReferencePanel.Visibility = System.Windows.Visibility.Collapsed;
+                RecoveryPersonComboBox.SelectedItem = null;
+                OnlinePaymentTypeComboBox.SelectedIndex = -1;
+                TransactionReferenceTextBox.Clear();
+            }
+            else if (selectedMethod == "Online Payment")
+            {
+                RecoveryPersonPanel.Visibility = System.Windows.Visibility.Collapsed;
+                OnlinePaymentPanel.Visibility = System.Windows.Visibility.Visible;
+                TransactionReferencePanel.Visibility = System.Windows.Visibility.Visible;
+                RecoveryPersonComboBox.SelectedItem = null;
+                if (OnlinePaymentTypeComboBox.Items.Count > 0)
+                {
+                    OnlinePaymentTypeComboBox.SelectedIndex = 0;
+                }
             }
             else
             {
                 RecoveryPersonPanel.Visibility = System.Windows.Visibility.Collapsed;
-                RecoveryPersonComboBox.SelectedItem = null;
+                OnlinePaymentPanel.Visibility = System.Windows.Visibility.Collapsed;
+                TransactionReferencePanel.Visibility = System.Windows.Visibility.Collapsed;
             }
         }
 
@@ -472,6 +517,13 @@ namespace SmartERP.UI.Views
                 BillingData.BalanceAmount = BillingData.TotalAmount - BillingData.AmountPaid;
                 BillingData.PaymentStatus = PaymentStatusComboBox.Text;
                 BillingData.PaymentMethod = PaymentMethodComboBox.Text.Trim();
+                
+                // Handle online payment type
+                if (PaymentMethodComboBox.Text == "Online Payment" && OnlinePaymentTypeComboBox.SelectedItem is ComboBoxItem paymentType)
+                {
+                    BillingData.PaymentMethod = $"Online Payment - {paymentType.Content}";
+                }
+                
                 BillingData.TransactionReference = TransactionReferenceTextBox.Text.Trim();
                 BillingData.PaymentDate = PaymentDatePicker.SelectedDate;
                 
@@ -617,6 +669,28 @@ namespace SmartERP.UI.Views
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 PaymentStatusComboBox.Focus();
                 return false;
+            }
+
+            // Validate online payment fields if Online Payment is selected
+            if (PaymentMethodComboBox.Text == "Online Payment")
+            {
+                // Validate online payment type
+                if (OnlinePaymentTypeComboBox.SelectedItem == null || string.IsNullOrWhiteSpace(OnlinePaymentTypeComboBox.Text))
+                {
+                    MessageBox.Show("Please select an online payment type.", "Validation Error",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    OnlinePaymentTypeComboBox.Focus();
+                    return false;
+                }
+
+                // Validate transaction reference
+                if (string.IsNullOrWhiteSpace(TransactionReferenceTextBox.Text))
+                {
+                    MessageBox.Show("Please enter a reference number for online payment.", "Validation Error",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    TransactionReferenceTextBox.Focus();
+                    return false;
+                }
             }
 
             return true;
