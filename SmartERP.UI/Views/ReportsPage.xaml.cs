@@ -76,6 +76,37 @@ namespace SmartERP.UI.Views
             dialog.ShowDialog();
         }
 
+        // Inventory Assignment Reports
+        private void AssignmentSummaryReport_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ReportViewerDialog(_unitOfWork, _authService, ReportType.AssignmentSummary);
+            dialog.ShowDialog();
+        }
+
+        private void AssignmentByUserReport_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ReportViewerDialog(_unitOfWork, _authService, ReportType.AssignmentByUser);
+            dialog.ShowDialog();
+        }
+
+        private void AssignmentByItemReport_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ReportViewerDialog(_unitOfWork, _authService, ReportType.AssignmentByItem);
+            dialog.ShowDialog();
+        }
+
+        private void AssignmentDetailsReport_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ReportViewerDialog(_unitOfWork, _authService, ReportType.AssignmentDetails);
+            dialog.ShowDialog();
+        }
+
+        private void AssignmentTrendReport_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ReportViewerDialog(_unitOfWork, _authService, ReportType.AssignmentTrend);
+            dialog.ShowDialog();
+        }
+
         // System Reports
         private void UserActivityReport_Click(object sender, RoutedEventArgs e)
         {
@@ -101,6 +132,11 @@ namespace SmartERP.UI.Views
         StockStatus,
         LowStock,
         InventoryValue,
+        AssignmentSummary,
+        AssignmentByUser,
+        AssignmentByItem,
+        AssignmentDetails,
+        AssignmentTrend,
         UserActivity,
         DashboardSummary
     }

@@ -334,6 +334,134 @@
                     </Border>
                 </Grid>
 
+                <!-- Inventory Assignment Reports -->
+                <TextBlock Text="Inventory Assignment Reports"
+                          FontSize="18"
+                          FontWeight="SemiBold"
+                          Foreground="#333333"
+                          Margin="10,10,10,15"/>
+
+                <Grid Margin="0,0,0,30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Assignment Summary Report -->
+                    <Border Grid.Column="0" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="AssignmentSummaryReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Assignment Summary"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#9C27B0"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Overall inventory assignment summary with key metrics and statistics"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="AssignmentSummaryReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Assignment by User Report -->
+                    <Border Grid.Column="1" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="AssignmentByUserReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Assignments by User"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#00BCD4"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Inventory assignments grouped by employee with distribution details"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="AssignmentByUserReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Assignment by Item Report -->
+                    <Border Grid.Column="2" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="AssignmentByItemReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Assignments by Item"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#FF5722"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Inventory assignments grouped by item with usage tracking"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="AssignmentByItemReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid Margin="0,0,0,30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Assignment Details Report -->
+                    <Border Grid.Column="0" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="AssignmentDetailsReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Assignment Details"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#4CAF50"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Detailed records of all inventory assignments with remarks and timestamps"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="AssignmentDetailsReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Assignment Trend Report -->
+                    <Border Grid.Column="1" Style="{StaticResource ReportCardStyle}"
+                           MouseLeftButtonDown="AssignmentTrendReport_Click">
+                        <StackPanel>
+                            <TextBlock Text="Assignment Trends"
+                                      FontSize="16"
+                                      FontWeight="SemiBold"
+                                      Foreground="#2196F3"
+                                      Margin="0,0,0,10"/>
+                            <TextBlock Text="Monthly assignment trends over time with pattern analysis"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Foreground="#666666"
+                                      Margin="0,0,0,15"/>
+                            <Button Content="Generate Report"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Click="AssignmentTrendReport_Click"
+                                   HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
                 <!-- System Reports -->
                 <TextBlock Text="System Reports"
                           FontSize="18"

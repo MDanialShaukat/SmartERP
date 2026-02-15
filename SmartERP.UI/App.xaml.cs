@@ -264,6 +264,8 @@ public partial class App : Application
 
         // Services
         services.AddSingleton<IAuthenticationService, AuthenticationService>();
+        services.AddSingleton<IInventoryAssignmentReportService, InventoryAssignmentReportService>();
+
 
         // Database Initializer
         services.AddTransient<DatabaseInitializer>();

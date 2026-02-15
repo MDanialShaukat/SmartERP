@@ -90,6 +90,36 @@ namespace SmartERP.UI.Views
                     MonthYearPanel.Visibility = Visibility.Collapsed;
                     break;
 
+                case ReportType.AssignmentSummary:
+                    ReportTitle.Text = "Inventory Assignment Summary Report";
+                    DateRangePanel.Visibility = Visibility.Visible;
+                    MonthYearPanel.Visibility = Visibility.Collapsed;
+                    break;
+
+                case ReportType.AssignmentByUser:
+                    ReportTitle.Text = "Inventory Assignments by User Report";
+                    DateRangePanel.Visibility = Visibility.Visible;
+                    MonthYearPanel.Visibility = Visibility.Collapsed;
+                    break;
+
+                case ReportType.AssignmentByItem:
+                    ReportTitle.Text = "Inventory Assignments by Item Report";
+                    DateRangePanel.Visibility = Visibility.Visible;
+                    MonthYearPanel.Visibility = Visibility.Collapsed;
+                    break;
+
+                case ReportType.AssignmentDetails:
+                    ReportTitle.Text = "Inventory Assignment Details Report";
+                    DateRangePanel.Visibility = Visibility.Visible;
+                    MonthYearPanel.Visibility = Visibility.Collapsed;
+                    break;
+
+                case ReportType.AssignmentTrend:
+                    ReportTitle.Text = "Inventory Assignment Trends Report";
+                    DateRangePanel.Visibility = Visibility.Collapsed;
+                    MonthYearPanel.Visibility = Visibility.Collapsed;
+                    break;
+
                 case ReportType.UserActivity:
                     ReportTitle.Text = "User Activity Report";
                     DateRangePanel.Visibility = Visibility.Visible;
@@ -162,6 +192,21 @@ namespace SmartERP.UI.Views
                         break;
                     case ReportType.InventoryValue:
                         await GenerateInventoryValueReport();
+                        break;
+                    case ReportType.AssignmentSummary:
+                        await GenerateAssignmentSummaryReport();
+                        break;
+                    case ReportType.AssignmentByUser:
+                        await GenerateAssignmentByUserReport();
+                        break;
+                    case ReportType.AssignmentByItem:
+                        await GenerateAssignmentByItemReport();
+                        break;
+                    case ReportType.AssignmentDetails:
+                        await GenerateAssignmentDetailsReport();
+                        break;
+                    case ReportType.AssignmentTrend:
+                        await GenerateAssignmentTrendReport();
                         break;
                     case ReportType.UserActivity:
                         await GenerateUserActivityReport();
@@ -597,28 +642,6 @@ namespace SmartERP.UI.Views
             SummaryPanel.Visibility = Visibility.Visible;
             SummaryContent.Children.Clear();
 
-            // Customer Statistics
-            var customerCount = customers.Count();
-            var activeCustomers = customers.Count(c => c.IsActive);
-            var totalOutstanding = customers.Sum(c => c.OutstandingBalance);
-
-            AddSummaryItem("Total Customers", customerCount.ToString());
-            AddSummaryItem("Active Customers", activeCustomers.ToString());
-            AddSummaryItem("Total Outstanding", $"Rs. {totalOutstanding:N2}");
-
-            // Billing Statistics
-            var currentMonth = DateTime.Now.Month;
-            var currentYear = DateTime.Now.Year;
-            var thisMonthBills = billings.Where(b => b.BillingMonth == currentMonth && b.BillingYear == currentYear);
-            var overdueBills = billings.Where(b => 
-                b.DueDate < DateTime.Now.Date && 
-                (b.PaymentStatus == "Pending" || b.PaymentStatus == "Partial"));
-
-            AddSummaryItem("This Month Bills", thisMonthBills.Count().ToString());
-            AddSummaryItem("This Month Collection", $"Rs. {thisMonthBills.Sum(b => b.AmountPaid):N2}");
-            AddSummaryItem("Overdue Bills", overdueBills.Count().ToString());
-            AddSummaryItem("Overdue Amount", $"Rs. {overdueBills.Sum(b => b.BalanceAmount):N2}");
-
             // Inventory Statistics
             var totalInventoryValue = inventory.Sum(i => i.QuantityRemaining * i.PurchasePrice);
             var lowStockItems = inventory.Count(i => i.QuantityRemaining <= 10);
@@ -634,7 +657,156 @@ namespace SmartERP.UI.Views
 
             _reportData.Clear();
             ReportDataGrid.ItemsSource = null;
-            StatusText.Text = "Dashboard summary displayed above";
+        }
+
+        // Inventory Assignment Report Methods
+
+        private async System.Threading.Tasks.Task GenerateAssignmentSummaryReport()
+        {
+            var fromDate = FromDatePicker.SelectedDate ?? DateTime.Now.AddMonths(-1);
+            var toDate = ToDatePicker.SelectedDate ?? DateTime.Now;
+
+            var reportService = new InventoryAssignmentReportService(_unitOfWork);
+            var summary = await reportService.GetAssignmentSummaryAsync(fromDate, toDate);
+
+            SummaryPanel.Visibility = Visibility.Visible;
+            SummaryContent.Children.Clear();
+
+            AddSummaryItem("Report Period", $"{fromDate:dd/MM/yyyy} to {toDate:dd/MM/yyyy}");
+            AddSummaryItem("Total Assignments", summary.TotalAssignments.ToString());
+            AddSummaryItem("Total Quantity Assigned", summary.TotalQuantityAssigned.ToString());
+            AddSummaryItem("Unique Items Assigned", summary.UniqueItemsAssigned.ToString());
+            AddSummaryItem("Unique Users Assigned", summary.UniqueUsersAssigned.ToString());
+            AddSummaryItem("Average Quantity per Assignment", $"{summary.AverageQuantityPerAssignment:F2}");
+            AddSummaryItem("Average Assignments per Day", $"{summary.AverageAssignmentsPerDay:F2}");
+
+            _reportData.Clear();
+            ReportDataGrid.ItemsSource = null;
+        }
+
+        private async System.Threading.Tasks.Task GenerateAssignmentByUserReport()
+        {
+            var fromDate = FromDatePicker.SelectedDate ?? DateTime.Now.AddMonths(-1);
+            var toDate = ToDatePicker.SelectedDate ?? DateTime.Now;
+
+            var reportService = new InventoryAssignmentReportService(_unitOfWork);
+            var userReports = await reportService.GetAssignmentsByUserAsync(fromDate, toDate);
+
+            var reportData = userReports.Select(r => new
+            {
+                User = r.UserName,
+                TotalAssignments = r.TotalAssignments,
+                TotalQuantity = r.TotalQuantityReceived,
+                UniqueItems = r.UniqueItemsReceived,
+                FirstAssignment = r.FirstAssignmentDate.ToString("dd/MM/yyyy"),
+                LastAssignment = r.LastAssignmentDate.ToString("dd/MM/yyyy"),
+                AverageQuantity = r.AverageQuantityPerAssignment.ToString("F2")
+            }).ToList();
+
+            _reportData = reportData.Cast<object>().ToList();
+            ReportDataGrid.ItemsSource = _reportData;
+
+            AddDataGridColumn("User Name", "User");
+            AddDataGridColumn("Total Assignments", "TotalAssignments");
+            AddDataGridColumn("Total Quantity", "TotalQuantity");
+            AddDataGridColumn("Unique Items", "UniqueItems");
+            AddDataGridColumn("First Assignment", "FirstAssignment");
+            AddDataGridColumn("Last Assignment", "LastAssignment");
+            AddDataGridColumn("Average Quantity", "AverageQuantity");
+        }
+
+        private async System.Threading.Tasks.Task GenerateAssignmentByItemReport()
+        {
+            var fromDate = FromDatePicker.SelectedDate ?? DateTime.Now.AddMonths(-1);
+            var toDate = ToDatePicker.SelectedDate ?? DateTime.Now;
+
+            var reportService = new InventoryAssignmentReportService(_unitOfWork);
+            var itemReports = await reportService.GetAssignmentsByItemAsync(fromDate, toDate);
+
+            var reportData = itemReports.Select(r => new
+            {
+                ItemName = r.ItemName,
+                Category = r.Category,
+                TotalAssignments = r.TotalAssignments,
+                TotalQuantity = r.TotalQuantityAssigned,
+                UniqueUsers = r.UniqueUsersReceived,
+                CurrentStock = r.CurrentStock,
+                AverageQuantity = r.AverageQuantityPerAssignment.ToString("F2")
+            }).ToList();
+
+            _reportData = reportData.Cast<object>().ToList();
+            ReportDataGrid.ItemsSource = _reportData;
+
+            AddDataGridColumn("Item Name", "ItemName");
+            AddDataGridColumn("Category", "Category");
+            AddDataGridColumn("Total Assignments", "TotalAssignments");
+            AddDataGridColumn("Total Quantity Assigned", "TotalQuantity");
+            AddDataGridColumn("Unique Users", "UniqueUsers");
+            AddDataGridColumn("Current Stock", "CurrentStock");
+            AddDataGridColumn("Average Qty/Assignment", "AverageQuantity");
+        }
+
+        private async System.Threading.Tasks.Task GenerateAssignmentDetailsReport()
+        {
+            var fromDate = FromDatePicker.SelectedDate ?? DateTime.Now.AddMonths(-3);
+            var toDate = ToDatePicker.SelectedDate ?? DateTime.Now;
+
+            var reportService = new InventoryAssignmentReportService(_unitOfWork);
+            var details = await reportService.GetDetailedAssignmentsAsync(fromDate, toDate);
+
+            var reportData = details.Select(d => new
+            {
+                Item = d.ItemName,
+                Category = d.Category,
+                Quantity = d.QuantityAssigned,
+                AssignedTo = d.AssignedToUser,
+                AssignmentDate = d.AssignmentDate.ToString("dd/MM/yyyy HH:mm"),
+                AssignedBy = d.AssignedByUser,
+                Remarks = d.Remarks
+            }).ToList();
+
+            _reportData = reportData.Cast<object>().ToList();
+            ReportDataGrid.ItemsSource = _reportData;
+
+            AddDataGridColumn("Item Name", "Item");
+            AddDataGridColumn("Category", "Category");
+            AddDataGridColumn("Quantity", "Quantity");
+            AddDataGridColumn("Assigned To", "AssignedTo");
+            AddDataGridColumn("Assignment Date", "AssignmentDate");
+            AddDataGridColumn("Assigned By", "AssignedBy");
+            AddDataGridColumn("Remarks", "Remarks");
+        }
+
+        private async System.Threading.Tasks.Task GenerateAssignmentTrendReport()
+        {
+            var reportService = new InventoryAssignmentReportService(_unitOfWork);
+            var trend = await reportService.GetAssignmentTrendAsync(12);
+
+            var reportData = trend.MonthlyData.Select(m => new
+            {
+                Month = m.Month,
+                Assignments = m.AssignmentCount,
+                TotalQuantity = m.TotalQuantity,
+                UniqueItems = m.UniqueItems,
+                UniqueUsers = m.UniqueUsers
+            }).ToList();
+
+            _reportData = reportData.Cast<object>().ToList();
+            ReportDataGrid.ItemsSource = _reportData;
+
+            AddDataGridColumn("Month", "Month");
+            AddDataGridColumn("Assignment Count", "Assignments");
+            AddDataGridColumn("Total Quantity", "TotalQuantity");
+            AddDataGridColumn("Unique Items", "UniqueItems");
+            AddDataGridColumn("Unique Users", "UniqueUsers");
+
+            // Summary
+            SummaryPanel.Visibility = Visibility.Visible;
+            SummaryContent.Children.Clear();
+            AddSummaryItem("Months Analyzed", trend.MonthsAnalyzed.ToString());
+            AddSummaryItem("Average Assignments/Month", $"{trend.AverageAssignmentsPerMonth:F2}");
+            AddSummaryItem("Average Quantity/Month", $"{trend.AverageQuantityPerMonth:F2}");
+            AddSummaryItem("Highest Assignment Month", trend.HighestAssignmentMonth);
         }
 
         private void AddDataGridColumn(string header, string binding, string format = "")
