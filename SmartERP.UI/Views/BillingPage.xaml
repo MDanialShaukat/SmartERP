@@ -163,8 +163,17 @@
                              Margin="0,0,10,0"
                              VerticalContentAlignment="Center"
                              SelectionChanged="YearFilterComboBox_SelectionChanged"/>
+
+                    <ComboBox x:Name="AreaFilterComboBox"
+                             Width="150"
+                             Height="35"
+                             Margin="0,0,10,0"
+                             VerticalContentAlignment="Center"
+                             DisplayMemberPath="AreaName"
+                             SelectedValuePath="Id"
+                             SelectionChanged="AreaFilterComboBox_SelectionChanged"/>
                     
-                    <Button Content="🔍 Apply Filters"
+                    <Button Content="🔍 Apply"
                            Style="{StaticResource FilterButtonStyle}"
                            Click="ApplyFiltersButton_Click"/>
                 </StackPanel>

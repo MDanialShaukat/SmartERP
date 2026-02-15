@@ -81,7 +81,35 @@ namespace SmartERP.UI.Views
             EmailTextBox.Text = customer.Email;
             AddressTextBox.Text = customer.Address;
             PinCodeTextBox.Text = customer.PinCode;
-            PackageTypeComboBox.Text = customer.PackageType;
+            
+            // Handle package type - if custom, show in custom field
+            var presetSizes = new[] { "8MB", "12MB", "15MB", "20MB", "25MB", "30MB" };
+            bool isCustom = !presetSizes.Contains(customer.PackageType);
+            
+            if (isCustom)
+            {
+                // Find and select CUSTOMIZE item
+                foreach (var item in PackageTypeComboBox.Items)
+                {
+                    if (item is System.Windows.Controls.ComboBoxItem comboItem && 
+                        comboItem.Content.ToString() == "CUSTOMIZE")
+                    {
+                        PackageTypeComboBox.SelectedItem = item;
+                        break;
+                    }
+                }
+                
+                // Show custom field and populate it
+                CustomPackageSizePanel.Visibility = System.Windows.Visibility.Visible;
+                CustomPackageSizeTextBox.Text = customer.PackageType;
+            }
+            else
+            {
+                // Select preset size
+                PackageTypeComboBox.Text = customer.PackageType;
+                CustomPackageSizePanel.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            
             PackageAmountTextBox.Text = customer.PackageAmount.ToString("F2");
             ConnectionTypeComboBox.Text = customer.ConnectionType;
             ConnectionDatePicker.SelectedDate = customer.ConnectionDate;
@@ -106,6 +134,30 @@ namespace SmartERP.UI.Views
                     return;
                 }
 
+                // Determine package type
+                string packageType = "";
+                if (PackageTypeComboBox.SelectedItem is System.Windows.Controls.ComboBoxItem selectedItem)
+                {
+                    string selectedValue = selectedItem.Content.ToString();
+                    
+                    if (selectedValue == "CUSTOMIZE")
+                    {
+                        // Use custom package size
+                        if (string.IsNullOrWhiteSpace(CustomPackageSizeTextBox.Text))
+                        {
+                            MessageBox.Show("Please enter a custom package size (e.g., 40MB, 50MB).", "Validation Error", 
+                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                            CustomPackageSizeTextBox.Focus();
+                            return;
+                        }
+                        packageType = CustomPackageSizeTextBox.Text.Trim();
+                    }
+                    else
+                    {
+                        packageType = selectedValue;
+                    }
+                }
+
                 // Update customer data
                 CustomerData!.CustomerCode = CustomerCodeTextBox.Text.Trim();
                 CustomerData.CustomerName = CustomerNameTextBox.Text.Trim();
@@ -114,7 +166,7 @@ namespace SmartERP.UI.Views
                 CustomerData.Address = AddressTextBox.Text.Trim();
                 CustomerData.AreaId = areaId;
                 CustomerData.PinCode = PinCodeTextBox.Text.Trim();
-                CustomerData.PackageType = PackageTypeComboBox.Text.Trim();
+                CustomerData.PackageType = packageType;
                 CustomerData.PackageAmount = decimal.Parse(PackageAmountTextBox.Text);
                 CustomerData.ConnectionType = ConnectionTypeComboBox.Text.Trim();
                 CustomerData.ConnectionDate = ConnectionDatePicker.SelectedDate ?? DateTime.Now;
@@ -171,6 +223,31 @@ namespace SmartERP.UI.Views
             {
                 MessageBox.Show($"Error adding area: {ex.Message}", "Error", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void PackageTypeComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (PackageTypeComboBox.SelectedItem is System.Windows.Controls.ComboBoxItem selectedItem)
+            {
+                string selectedValue = selectedItem.Content?.ToString() ?? "";
+                
+                if (selectedValue == "CUSTOMIZE")
+                {
+                    // Show custom package size input
+                    CustomPackageSizePanel.Visibility = System.Windows.Visibility.Visible;
+                    
+                    // Only clear if this is a fresh selection (not loading existing data)
+                    if (string.IsNullOrEmpty(CustomPackageSizeTextBox.Text))
+                    {
+                        CustomPackageSizeTextBox.Focus();
+                    }
+                }
+                else
+                {
+                    // Hide custom package size input for predefined sizes
+                    CustomPackageSizePanel.Visibility = System.Windows.Visibility.Collapsed;
+                }
             }
         }
 

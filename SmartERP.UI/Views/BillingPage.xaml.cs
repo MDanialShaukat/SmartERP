@@ -15,6 +15,7 @@ namespace SmartERP.UI.Views
         private readonly IAuthenticationService _authService;
         private List<Billing> _allBillings;
         private Billing? _selectedBilling;
+        private List<Area> _allAreas;
 
         public BillingPage(IUnitOfWork unitOfWork, IAuthenticationService authService)
         {
@@ -22,14 +23,45 @@ namespace SmartERP.UI.Views
             _unitOfWork = unitOfWork;
             _authService = authService;
             _allBillings = new List<Billing>();
+            _allAreas = new List<Area>();
             
             Loaded += BillingPage_Loaded;
         }
 
         private async void BillingPage_Loaded(object sender, RoutedEventArgs e)
         {
+            await LoadAreasAsync();
             await LoadBillingDataAsync();
             InitializeFilters();
+        }
+
+        private async System.Threading.Tasks.Task LoadAreasAsync()
+        {
+            try
+            {
+                var areas = await _unitOfWork.Areas.GetActiveAreasAsync();
+                _allAreas = areas.ToList();
+
+                // Add "All Areas" option at the beginning
+                AreaFilterComboBox.Items.Add(new Area { Id = 0, AreaName = "All Areas" });
+
+                // Add all areas
+                foreach (var area in _allAreas)
+                {
+                    AreaFilterComboBox.Items.Add(area);
+                }
+
+                // Select "All Areas" by default
+                if (AreaFilterComboBox.Items.Count > 0)
+                {
+                    AreaFilterComboBox.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading areas: {ex.Message}", "Error", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void InitializeFilters()
@@ -237,6 +269,7 @@ namespace SmartERP.UI.Views
             StatusFilterComboBox.SelectedIndex = 0;
             MonthFilterComboBox.SelectedIndex = 0;
             YearFilterComboBox.SelectedIndex = 0;
+            AreaFilterComboBox.SelectedIndex = 0;
             SearchTextBox.Clear();
         }
 
@@ -304,6 +337,11 @@ namespace SmartERP.UI.Views
             // Filter will be applied when Apply Filters button is clicked
         }
 
+        private void AreaFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Filter will be applied when Apply Filters button is clicked
+        }
+
         private void ApplyFiltersButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -332,6 +370,13 @@ namespace SmartERP.UI.Views
                 {
                     var year = int.Parse(yearItem.Tag.ToString()!);
                     filtered = filtered.Where(b => b.BillingYear == year);
+                }
+
+                // Area filter
+                var areaItem = AreaFilterComboBox.SelectedItem as Area;
+                if (areaItem != null && areaItem.Id > 0)
+                {
+                    filtered = filtered.Where(b => b.Customer?.AreaId == areaItem.Id);
                 }
 
                 var result = filtered.ToList();

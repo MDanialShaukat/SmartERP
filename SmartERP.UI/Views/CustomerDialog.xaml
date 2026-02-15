@@ -260,13 +260,37 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Package Type" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox x:Name="PackageTypeComboBox" IsEditable="True">
-                            <ComboBoxItem Content="Basic"/>
-                            <ComboBoxItem Content="Standard"/>
-                            <ComboBoxItem Content="Premium"/>
-                            <ComboBoxItem Content="Corporate"/>
-                            <ComboBoxItem Content="Custom"/>
-                        </ComboBox>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <ComboBox x:Name="PackageTypeComboBox" 
+                                     Grid.Row="0"
+                                     IsEditable="False"
+                                     SelectionChanged="PackageTypeComboBox_SelectionChanged">
+                                <ComboBoxItem Content="8MB"/>
+                                <ComboBoxItem Content="12MB"/>
+                                <ComboBoxItem Content="15MB"/>
+                                <ComboBoxItem Content="20MB"/>
+                                <ComboBoxItem Content="25MB"/>
+                                <ComboBoxItem Content="30MB"/>
+                                <ComboBoxItem Content="CUSTOMIZE"/>
+                            </ComboBox>
+
+                            <!-- Custom Package Size Input (Hidden by default) -->
+                            <StackPanel Grid.Row="1"
+                                       x:Name="CustomPackageSizePanel"
+                                       Visibility="Collapsed"
+                                       Margin="0,8,0,0">
+                                <TextBlock Text="Custom Size (e.g., 40MB, 50MB)" 
+                                          Style="{StaticResource LabelStyle}"
+                                          FontSize="11"/>
+                                <TextBox x:Name="CustomPackageSizeTextBox"
+                                        Height="35"/>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
