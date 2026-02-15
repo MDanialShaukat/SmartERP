@@ -7,6 +7,7 @@ namespace SmartERP.Data
     public interface IUnitOfWork : IDisposable
     {
         IUserRepository Users { get; }
+        IAreaRepository Areas { get; }
         IInventoryRepository Inventories { get; }
         ICustomerRepository Customers { get; }
         IBillingRepository Billings { get; }

@@ -223,8 +223,25 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="City" Style="{StaticResource LabelStyle}"/>
-                        <TextBox x:Name="CityTextBox"/>
+                        <TextBlock Text="Area *" Style="{StaticResource LabelStyle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="AreaComboBox" 
+                                     Grid.Column="0"
+                                     DisplayMemberPath="AreaName"
+                                     SelectedValuePath="Id"/>
+                            <Button x:Name="AddAreaButton"
+                                   Grid.Column="1"
+                                   Content="➕ New"
+                                   Style="{StaticResource ActionButtonStyle}"
+                                   Margin="5,0,0,0"
+                                   Padding="10,8"
+                                   Height="35"
+                                   Click="AddAreaButton_Click"/>
+                        </Grid>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">

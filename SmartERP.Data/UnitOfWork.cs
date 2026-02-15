@@ -14,6 +14,7 @@ namespace SmartERP.Data
         {
             _context = context;
             Users = new UserRepository(_context);
+            Areas = new AreaRepository(_context);
             Inventories = new InventoryRepository(_context);
             Customers = new CustomerRepository(_context);
             Billings = new BillingRepository(_context);
@@ -21,6 +22,7 @@ namespace SmartERP.Data
         }
 
         public IUserRepository Users { get; }
+        public IAreaRepository Areas { get; }
         public IInventoryRepository Inventories { get; }
         public ICustomerRepository Customers { get; }
         public IBillingRepository Billings { get; }

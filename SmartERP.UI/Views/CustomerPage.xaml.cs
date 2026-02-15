@@ -67,7 +67,7 @@ namespace SmartERP.UI.Views
 
         private async void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new CustomerDialog(_authService.CurrentUser!.Id);
+            var dialog = new CustomerDialog(_unitOfWork, _authService.CurrentUser!.Id);
             
             if (dialog.ShowDialog() == true && dialog.CustomerData != null)
             {
@@ -121,7 +121,7 @@ namespace SmartERP.UI.Views
                 return;
             }
 
-            var dialog = new CustomerDialog(_authService.CurrentUser!.Id, _selectedCustomer);
+            var dialog = new CustomerDialog(_unitOfWork, _authService.CurrentUser!.Id, _selectedCustomer);
             
             if (dialog.ShowDialog() == true && dialog.CustomerData != null)
             {
@@ -234,7 +234,7 @@ namespace SmartERP.UI.Views
                     c.CustomerCode.ToLower().Contains(searchText) ||
                     c.PhoneNumber.ToLower().Contains(searchText) ||
                     c.Email.ToLower().Contains(searchText) ||
-                    c.City.ToLower().Contains(searchText) ||
+                    c.Area?.AreaName.ToLower().Contains(searchText) == true ||
                     c.Address.ToLower().Contains(searchText) ||
                     c.PackageType.ToLower().Contains(searchText)
                 ).ToList();

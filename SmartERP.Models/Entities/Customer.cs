@@ -27,8 +27,12 @@ namespace SmartERP.Models.Entities
         [MaxLength(500)]
         public string Address { get; set; } = string.Empty;
 
-        [MaxLength(100)]
-        public string City { get; set; } = string.Empty;
+        // Changed from City string to AreaId foreign key
+        [Required]
+        [ForeignKey("Area")]
+        public int AreaId { get; set; }
+
+        public Area? Area { get; set; }
 
         [MaxLength(20)]
         public string PinCode { get; set; } = string.Empty;

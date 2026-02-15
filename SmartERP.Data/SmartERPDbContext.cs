@@ -11,6 +11,7 @@ namespace SmartERP.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
+        public DbSet<Area> Areas { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Billing> Billings { get; set; }
         public DbSet<InventoryAssignment> InventoryAssignments { get; set; }
@@ -36,10 +37,36 @@ namespace SmartERP.Data
                 entity.Property(e => e.Role).HasDefaultValue("User");
             });
 
+            // Configure Area entity
+            modelBuilder.Entity<Area>(entity =>
+            {
+                entity.HasIndex(e => e.AreaName).IsUnique();
+
+                // Configure audit relationships
+                entity.HasOne(e => e.CreatedByUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.CreatedBy)
+                      .OnDelete(DeleteBehavior.NoAction)
+                      .IsRequired(false);
+
+                entity.HasOne(e => e.LastModifiedByUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.LastModifiedBy)
+                      .OnDelete(DeleteBehavior.NoAction)
+                      .IsRequired(false);
+            });
+
             // Configure Customer entity
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.HasIndex(e => e.CustomerCode).IsUnique();
+
+                // Configure Area relationship
+                entity.HasOne(e => e.Area)
+                      .WithMany()
+                      .HasForeignKey(e => e.AreaId)
+                      .OnDelete(DeleteBehavior.Restrict)
+                      .IsRequired(true);
 
                 // Configure audit relationships
                 entity.HasOne(e => e.CreatedByUser)

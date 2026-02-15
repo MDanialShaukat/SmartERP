@@ -410,7 +410,7 @@ namespace SmartERP.UI.Views
                 CustomerName = c.CustomerName,
                 PhoneNumber = c.PhoneNumber,
                 Email = c.Email,
-                City = c.City,
+                Area = c.Area?.AreaName ?? "N/A",
                 PackageType = c.PackageType,
                 PackageAmount = c.PackageAmount,
                 OutstandingBalance = c.OutstandingBalance,
@@ -424,7 +424,7 @@ namespace SmartERP.UI.Views
             AddDataGridColumn("Name", "CustomerName");
             AddDataGridColumn("Phone", "PhoneNumber");
             AddDataGridColumn("Email", "Email");
-            AddDataGridColumn("City", "City");
+            AddDataGridColumn("Area", "Area");
             AddDataGridColumn("Package", "PackageType");
             AddDataGridColumn("Package Amount", "PackageAmount", "C2");
             AddDataGridColumn("Outstanding", "OutstandingBalance", "C2");
@@ -443,7 +443,7 @@ namespace SmartERP.UI.Views
                 CustomerCode = c.CustomerCode,
                 CustomerName = c.CustomerName,
                 PhoneNumber = c.PhoneNumber,
-                City = c.City,
+                Area = c.Area?.AreaName ?? "N/A",
                 PackageAmount = c.PackageAmount,
                 OutstandingBalance = c.OutstandingBalance,
                 IsActive = c.IsActive ? "Yes" : "No"
@@ -455,7 +455,7 @@ namespace SmartERP.UI.Views
             AddDataGridColumn("Code", "CustomerCode");
             AddDataGridColumn("Name", "CustomerName");
             AddDataGridColumn("Phone", "PhoneNumber");
-            AddDataGridColumn("City", "City");
+            AddDataGridColumn("Area", "Area");
             AddDataGridColumn("Package Amount", "PackageAmount", "C2");
             AddDataGridColumn("Outstanding", "OutstandingBalance", "C2");
             AddDataGridColumn("Active", "IsActive");
@@ -485,7 +485,7 @@ namespace SmartERP.UI.Views
                 CustomerName = c.CustomerName,
                 PhoneNumber = c.PhoneNumber,
                 Email = c.Email,
-                City = c.City,
+                Area = c.Area?.AreaName ?? "N/A",
                 PackageType = c.PackageType,
                 PackageAmount = c.PackageAmount,
                 ConnectionDate = c.ConnectionDate.ToString("dd/MM/yyyy"),
@@ -499,7 +499,7 @@ namespace SmartERP.UI.Views
             AddDataGridColumn("Name", "CustomerName");
             AddDataGridColumn("Phone", "PhoneNumber");
             AddDataGridColumn("Email", "Email");
-            AddDataGridColumn("City", "City");
+            AddDataGridColumn("Area", "Area");
             AddDataGridColumn("Package", "PackageType");
             AddDataGridColumn("Package Amount", "PackageAmount", "C2");
             AddDataGridColumn("Connection Date", "ConnectionDate");

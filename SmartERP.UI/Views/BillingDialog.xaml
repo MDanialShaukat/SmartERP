@@ -168,6 +168,14 @@
                            VerticalAlignment="Bottom"/>
                 </Grid>
 
+                <!-- Area Selection -->
+                <TextBlock Text="Area" Style="{StaticResource LabelStyle}"/>
+                <ComboBox x:Name="AreaComboBox" 
+                         DisplayMemberPath="AreaName"
+                         SelectedValuePath="Id"
+                         SelectionChanged="AreaComboBox_SelectionChanged"
+                         Margin="0,0,0,15"/>
+
                 <!-- Customer Selection -->
                 <TextBlock Text="Customer *" Style="{StaticResource LabelStyle}"/>
                 <ComboBox x:Name="CustomerComboBox" 

@@ -180,8 +180,8 @@
                                        Binding="{Binding Email}" 
                                        Width="180"/>
                     
-                    <DataGridTextColumn Header="City" 
-                                       Binding="{Binding City}" 
+                    <DataGridTextColumn Header="Area" 
+                                       Binding="{Binding Area.AreaName}" 
                                        Width="100"/>
                     
                     <DataGridTextColumn Header="Package Type" 

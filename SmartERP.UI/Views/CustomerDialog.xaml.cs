@@ -1,18 +1,21 @@
 using System;
 using System.Windows;
+using SmartERP.Data;
 using SmartERP.Models.Entities;
 
 namespace SmartERP.UI.Views
 {
     public partial class CustomerDialog : Window
     {
+        private readonly IUnitOfWork _unitOfWork;
         public Customer? CustomerData { get; private set; }
         private bool _isEditMode;
         private int _currentUserId;
 
-        public CustomerDialog(int currentUserId, Customer? existingCustomer = null)
+        public CustomerDialog(IUnitOfWork unitOfWork, int currentUserId, Customer? existingCustomer = null)
         {
             InitializeComponent();
+            _unitOfWork = unitOfWork;
             _currentUserId = currentUserId;
 
             if (existingCustomer != null)
@@ -21,9 +24,9 @@ namespace SmartERP.UI.Views
                 CustomerData = existingCustomer;
                 LoadCustomerData(existingCustomer);
                 DialogTitle.Text = "Edit Customer";
-                CustomerCodeTextBox.IsReadOnly = true; // Don't allow changing customer code
+                CustomerCodeTextBox.IsReadOnly = true;
                 CustomerCodeTextBox.Background = System.Windows.Media.Brushes.LightGray;
-                GenerateCodeButton.IsEnabled = false; // Disable generate button in edit mode
+                GenerateCodeButton.IsEnabled = false;
             }
             else
             {
@@ -32,6 +35,41 @@ namespace SmartERP.UI.Views
                 ConnectionDatePicker.SelectedDate = DateTime.Now;
                 PackageAmountTextBox.Text = "0";
                 OutstandingBalanceTextBox.Text = "0";
+            }
+
+            Loaded += CustomerDialog_Loaded;
+        }
+
+        private async void CustomerDialog_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await LoadAreasAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading areas: {ex.Message}", "Error", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async System.Threading.Tasks.Task LoadAreasAsync()
+        {
+            try
+            {
+                var areas = await _unitOfWork.Areas.GetActiveAreasAsync();
+                AreaComboBox.ItemsSource = areas;
+
+                // If editing, select the customer's current area
+                if (_isEditMode && CustomerData?.AreaId > 0)
+                {
+                    AreaComboBox.SelectedValue = CustomerData.AreaId;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading areas: {ex.Message}", "Error", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -42,7 +80,6 @@ namespace SmartERP.UI.Views
             PhoneNumberTextBox.Text = customer.PhoneNumber;
             EmailTextBox.Text = customer.Email;
             AddressTextBox.Text = customer.Address;
-            CityTextBox.Text = customer.City;
             PinCodeTextBox.Text = customer.PinCode;
             PackageTypeComboBox.Text = customer.PackageType;
             PackageAmountTextBox.Text = customer.PackageAmount.ToString("F2");
@@ -61,13 +98,21 @@ namespace SmartERP.UI.Views
 
             try
             {
+                // Validate Area selection
+                if (AreaComboBox.SelectedValue == null || !int.TryParse(AreaComboBox.SelectedValue.ToString(), out int areaId))
+                {
+                    MessageBox.Show("Please select an area.", "Validation Error", 
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 // Update customer data
                 CustomerData!.CustomerCode = CustomerCodeTextBox.Text.Trim();
                 CustomerData.CustomerName = CustomerNameTextBox.Text.Trim();
                 CustomerData.PhoneNumber = PhoneNumberTextBox.Text.Trim();
                 CustomerData.Email = EmailTextBox.Text.Trim();
                 CustomerData.Address = AddressTextBox.Text.Trim();
-                CustomerData.City = CityTextBox.Text.Trim();
+                CustomerData.AreaId = areaId;
                 CustomerData.PinCode = PinCodeTextBox.Text.Trim();
                 CustomerData.PackageType = PackageTypeComboBox.Text.Trim();
                 CustomerData.PackageAmount = decimal.Parse(PackageAmountTextBox.Text);
@@ -105,6 +150,30 @@ namespace SmartERP.UI.Views
             Close();
         }
 
+        private async void AddAreaButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var addAreaDialog = new AddAreaDialog(_unitOfWork, _currentUserId);
+                if (addAreaDialog.ShowDialog() == true && addAreaDialog.CreatedArea != null)
+                {
+                    // Reload areas
+                    await LoadAreasAsync();
+                    
+                    // Select the newly created area
+                    AreaComboBox.SelectedValue = addAreaDialog.CreatedArea.Id;
+                    
+                    MessageBox.Show("Area added successfully!", "Success", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding area: {ex.Message}", "Error", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private bool ValidateInput()
         {
             // Customer Code
@@ -140,6 +209,15 @@ namespace SmartERP.UI.Views
                 MessageBox.Show("Please enter address.", "Validation Error", 
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 AddressTextBox.Focus();
+                return false;
+            }
+
+            // Area
+            if (AreaComboBox.SelectedValue == null)
+            {
+                MessageBox.Show("Please select an area.", "Validation Error", 
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                AreaComboBox.Focus();
                 return false;
             }
 

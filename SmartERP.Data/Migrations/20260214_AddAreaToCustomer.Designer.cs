@@ -2,7 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartERP.Data;
 
@@ -11,9 +11,11 @@ using SmartERP.Data;
 namespace SmartERP.Data.Migrations
 {
     [DbContext(typeof(SmartERPDbContext))]
-    partial class SmartERPDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260214_AddAreaToCustomer")]
+    partial class AddAreaToCustomer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

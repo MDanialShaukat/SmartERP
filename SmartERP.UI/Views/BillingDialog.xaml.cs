@@ -15,6 +15,7 @@ namespace SmartERP.UI.Views
         private bool _isEditMode;
         private int _currentUserId;
         private List<Customer> _customers;
+        private List<Area> _areas;
 
         public BillingDialog(IUnitOfWork unitOfWork, int currentUserId, Billing? existingBilling = null)
         {
@@ -22,6 +23,7 @@ namespace SmartERP.UI.Views
             _unitOfWork = unitOfWork;
             _currentUserId = currentUserId;
             _customers = new List<Customer>();
+            _areas = new List<Area>();
 
             Loaded += BillingDialog_Loaded;
 
@@ -58,11 +60,27 @@ namespace SmartERP.UI.Views
 
         private async void BillingDialog_Loaded(object sender, RoutedEventArgs e)
         {
+            await LoadAreasAsync();
             await LoadCustomersAsync();
 
             if (_isEditMode && BillingData != null)
             {
                 LoadBillingData(BillingData);
+            }
+        }
+
+        private async System.Threading.Tasks.Task LoadAreasAsync()
+        {
+            try
+            {
+                var areas = await _unitOfWork.Areas.GetActiveAreasAsync();
+                _areas = areas.ToList();
+                AreaComboBox.ItemsSource = _areas;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading areas: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -72,11 +90,25 @@ namespace SmartERP.UI.Views
             {
                 var customers = await _unitOfWork.Customers.GetAllAsync();
                 _customers = customers.Where(c => c.IsActive).OrderBy(c => c.CustomerName).ToList();
-                CustomerComboBox.ItemsSource = _customers;
+                
+                // If area is selected, filter customers by area
+                if (AreaComboBox.SelectedItem is Area selectedArea)
+                {
+                    var filteredCustomers = _customers.Where(c => c.AreaId == selectedArea.Id).ToList();
+                    CustomerComboBox.ItemsSource = filteredCustomers;
+                }
+                else
+                {
+                    // Show all customers if no area selected
+                    CustomerComboBox.ItemsSource = _customers;
+                }
 
                 if (_customers.Any())
                 {
-                    CustomerComboBox.SelectedIndex = 0;
+                    if (CustomerComboBox.Items.Count > 0)
+                    {
+                        CustomerComboBox.SelectedIndex = 0;
+                    }
                 }
             }
             catch (Exception ex)
@@ -89,6 +121,16 @@ namespace SmartERP.UI.Views
         private void LoadBillingData(Billing billing)
         {
             BillNumberTextBox.Text = billing.BillNumber;
+            
+            // Select area
+            if (billing.Customer?.Area != null)
+            {
+                var area = _areas.FirstOrDefault(a => a.Id == billing.Customer.Area.Id);
+                if (area != null)
+                {
+                    AreaComboBox.SelectedItem = area;
+                }
+            }
             
             // Select customer
             var customer = _customers.FirstOrDefault(c => c.Id == billing.CustomerId);
@@ -156,6 +198,27 @@ namespace SmartERP.UI.Views
                 if (customer.PackageAmount > 0 && BillAmountTextBox != null)
                 {
                     BillAmountTextBox.Text = customer.PackageAmount.ToString("F2");
+                }
+            }
+        }
+
+        private async void AreaComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (AreaComboBox.SelectedItem is Area selectedArea && !_isEditMode)
+            {
+                // Filter customers by selected area
+                var customersInArea = _customers.Where(c => c.AreaId == selectedArea.Id).OrderBy(c => c.CustomerName).ToList();
+                CustomerComboBox.ItemsSource = customersInArea;
+
+                if (customersInArea.Any())
+                {
+                    CustomerComboBox.SelectedIndex = 0;
+                }
+                else
+                {
+                    CustomerComboBox.SelectedItem = null;
+                    MessageBox.Show($"No customers found in {selectedArea.AreaName} area.", "No Customers",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
