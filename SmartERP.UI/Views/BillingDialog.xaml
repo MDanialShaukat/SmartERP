@@ -170,14 +170,61 @@
 
                 <!-- Area Selection -->
                 <TextBlock Text="Area" Style="{StaticResource LabelStyle}"/>
-                <ComboBox x:Name="AreaComboBox" 
-                         DisplayMemberPath="AreaName"
-                         SelectedValuePath="Id"
-                         SelectionChanged="AreaComboBox_SelectionChanged"
-                         Margin="0,0,0,15"/>
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ComboBox x:Name="AreaComboBox" 
+                             Grid.Column="0"
+                             DisplayMemberPath="AreaName"
+                             SelectedValuePath="Id"
+                             SelectionChanged="AreaComboBox_SelectionChanged"/>
+
+                    <Button Grid.Column="2"
+                           Content="✖ Clear"
+                           Style="{StaticResource GenerateButtonStyle}"
+                           Click="ClearAreaButton_Click"
+                           Height="35"
+                           VerticalAlignment="Top"/>
+                </Grid>
 
                 <!-- Customer Selection -->
                 <TextBlock Text="Customer *" Style="{StaticResource LabelStyle}"/>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox x:Name="CustomerSearchBox"
+                            Grid.Column="0"
+                            Height="35"
+                            Padding="10,8"
+                            FontSize="13"
+                            BorderBrush="#CCCCCC"
+                            BorderThickness="1"
+                            TextChanged="CustomerSearchBox_TextChanged"
+                            VerticalContentAlignment="Center"/>
+
+                    <Button Grid.Column="2"
+                           Content="✖ Clear"
+                           Style="{StaticResource GenerateButtonStyle}"
+                           Click="ClearCustomerSearchButton_Click"
+                           Height="35"
+                           VerticalAlignment="Top"/>
+                </Grid>
+
+                <TextBlock Text="Search by Name or Code" 
+                          Style="{StaticResource LabelStyle}"
+                          FontSize="10"
+                          Margin="0,2,0,8"
+                          Foreground="#666666"/>
+
+                <!-- Customer Dropdown -->
                 <ComboBox x:Name="CustomerComboBox" 
                          DisplayMemberPath="CustomerName"
                          SelectionChanged="CustomerComboBox_SelectionChanged"

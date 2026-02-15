@@ -223,6 +223,78 @@ namespace SmartERP.UI.Views
             }
         }
 
+        private void CustomerSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            PerformCustomerSearch();
+        }
+
+        private void PerformCustomerSearch()
+        {
+            var searchText = CustomerSearchBox.Text.Trim().ToLower();
+
+            // Get base list to search from
+            List<Customer> baseList = _customers;
+            if (AreaComboBox.SelectedItem is Area selectedArea && selectedArea.Id > 0)
+            {
+                baseList = _customers.Where(c => c.AreaId == selectedArea.Id).ToList();
+            }
+
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                // Show all customers in area (or all if no area selected)
+                CustomerComboBox.ItemsSource = baseList.OrderBy(c => c.CustomerName).ToList();
+                if (baseList.Any())
+                {
+                    CustomerComboBox.SelectedIndex = 0;
+                }
+                return;
+            }
+
+            try
+            {
+                // Search by customer name or customer code
+                var filtered = baseList.Where(c =>
+                    c.CustomerName.ToLower().Contains(searchText) ||
+                    c.CustomerCode.ToLower().Contains(searchText)
+                ).OrderBy(c => c.CustomerName).ToList();
+
+                if (filtered.Any())
+                {
+                    CustomerComboBox.ItemsSource = filtered;
+                    CustomerComboBox.SelectedIndex = 0;
+                }
+                else
+                {
+                    CustomerComboBox.ItemsSource = new List<Customer>();
+                    CustomerComboBox.SelectedItem = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during search: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ClearCustomerSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            CustomerSearchBox.Text = "";
+            PerformCustomerSearch();
+        }
+
+        private void ClearAreaButton_Click(object sender, RoutedEventArgs e)
+        {
+            AreaComboBox.SelectedItem = null;
+            CustomerSearchBox.Text = "";
+            
+            // Show all customers again
+            CustomerComboBox.ItemsSource = _customers.OrderBy(c => c.CustomerName).ToList();
+            if (_customers.Any())
+            {
+                CustomerComboBox.SelectedIndex = 0;
+            }
+        }
+
         private async void GenerateBillNumberButton_Click(object sender, RoutedEventArgs e)
         {
             try
