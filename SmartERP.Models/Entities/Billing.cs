@@ -57,6 +57,11 @@ namespace SmartERP.Models.Entities
         [MaxLength(100)]
         public string TransactionReference { get; set; } = string.Empty;
 
+        public int? RecoveryPersonId { get; set; }
+
+        [ForeignKey("RecoveryPersonId")]
+        public RecoveryPerson? RecoveryPerson { get; set; }
+
         [MaxLength(500)]
         public string Notes { get; set; } = string.Empty;
 

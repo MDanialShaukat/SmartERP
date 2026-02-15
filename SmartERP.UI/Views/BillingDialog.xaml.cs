@@ -16,6 +16,7 @@ namespace SmartERP.UI.Views
         private int _currentUserId;
         private List<Customer> _customers;
         private List<Area> _areas;
+        private List<RecoveryPerson> _recoveryPersons;
 
         public BillingDialog(IUnitOfWork unitOfWork, int currentUserId, Billing? existingBilling = null)
         {
@@ -24,6 +25,7 @@ namespace SmartERP.UI.Views
             _currentUserId = currentUserId;
             _customers = new List<Customer>();
             _areas = new List<Area>();
+            _recoveryPersons = new List<RecoveryPerson>();
 
             Loaded += BillingDialog_Loaded;
 
@@ -62,6 +64,7 @@ namespace SmartERP.UI.Views
         {
             await LoadAreasAsync();
             await LoadCustomersAsync();
+            await LoadRecoveryPersonsAsync();
 
             if (_isEditMode && BillingData != null)
             {
@@ -118,6 +121,21 @@ namespace SmartERP.UI.Views
             }
         }
 
+        private async System.Threading.Tasks.Task LoadRecoveryPersonsAsync()
+        {
+            try
+            {
+                var recoveryPersons = await _unitOfWork.RecoveryPersons.GetAllAsync();
+                _recoveryPersons = recoveryPersons.Where(rp => rp.IsActive).OrderBy(rp => rp.PersonName).ToList();
+                RecoveryPersonComboBox.ItemsSource = _recoveryPersons;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading recovery persons: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void LoadBillingData(Billing billing)
         {
             BillNumberTextBox.Text = billing.BillNumber;
@@ -159,6 +177,23 @@ namespace SmartERP.UI.Views
             PaymentMethodComboBox.Text = billing.PaymentMethod;
             TransactionReferenceTextBox.Text = billing.TransactionReference;
             PaymentDatePicker.SelectedDate = billing.PaymentDate;
+            
+            // Set recovery person if billing has one
+            if (billing.RecoveryPersonId.HasValue)
+            {
+                RecoveryPersonComboBox.SelectedValue = billing.RecoveryPersonId;
+            }
+            
+            // Show/hide recovery person panel based on payment method
+            if (billing.PaymentMethod == "Cash")
+            {
+                RecoveryPersonPanel.Visibility = System.Windows.Visibility.Visible;
+            }
+            else
+            {
+                RecoveryPersonPanel.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            
             NotesTextBox.Text = billing.Notes;
 
             // Display audit information
@@ -295,6 +330,45 @@ namespace SmartERP.UI.Views
             }
         }
 
+        private void PaymentMethodComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Show Recovery Person panel only for Cash payment method
+            string selectedMethod = PaymentMethodComboBox.Text;
+            if (selectedMethod == "Cash")
+            {
+                RecoveryPersonPanel.Visibility = System.Windows.Visibility.Visible;
+            }
+            else
+            {
+                RecoveryPersonPanel.Visibility = System.Windows.Visibility.Collapsed;
+                RecoveryPersonComboBox.SelectedItem = null;
+            }
+        }
+
+        private async void AddRecoveryPersonButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var addRecoveryPersonDialog = new AddRecoveryPersonDialog(_unitOfWork, _currentUserId);
+                if (addRecoveryPersonDialog.ShowDialog() == true && addRecoveryPersonDialog.CreatedRecoveryPerson != null)
+                {
+                    // Reload recovery persons
+                    await LoadRecoveryPersonsAsync();
+                    
+                    // Select the newly created recovery person
+                    RecoveryPersonComboBox.SelectedValue = addRecoveryPersonDialog.CreatedRecoveryPerson.Id;
+                    
+                    MessageBox.Show("Recovery person added successfully!", "Success", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding recovery person: {ex.Message}", "Error", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private async void GenerateBillNumberButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -397,6 +471,20 @@ namespace SmartERP.UI.Views
                 BillingData.PaymentMethod = PaymentMethodComboBox.Text.Trim();
                 BillingData.TransactionReference = TransactionReferenceTextBox.Text.Trim();
                 BillingData.PaymentDate = PaymentDatePicker.SelectedDate;
+                
+                // Set recovery person if cash payment
+                if (PaymentMethodComboBox.Text == "Cash" && RecoveryPersonComboBox.SelectedValue != null)
+                {
+                    if (int.TryParse(RecoveryPersonComboBox.SelectedValue.ToString(), out int recoveryPersonId))
+                    {
+                        BillingData.RecoveryPersonId = recoveryPersonId;
+                    }
+                }
+                else
+                {
+                    BillingData.RecoveryPersonId = null;
+                }
+                
                 BillingData.Notes = NotesTextBox.Text.Trim();
 
                 if (!_isEditMode)

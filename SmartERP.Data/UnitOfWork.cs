@@ -19,6 +19,7 @@ namespace SmartERP.Data
             Customers = new CustomerRepository(_context);
             Billings = new BillingRepository(_context);
             InventoryAssignments = new InventoryAssignmentRepository(_context);
+            RecoveryPersons = new RecoveryPersonRepository(_context);
         }
 
         public IUserRepository Users { get; }
@@ -27,10 +28,16 @@ namespace SmartERP.Data
         public ICustomerRepository Customers { get; }
         public IBillingRepository Billings { get; }
         public IInventoryAssignmentRepository InventoryAssignments { get; }
+        public IRecoveryPersonRepository RecoveryPersons { get; }
 
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
+        }
+
+        public int SaveChanges()
+        {
+            return _context.SaveChanges();
         }
 
         public async Task BeginTransactionAsync()

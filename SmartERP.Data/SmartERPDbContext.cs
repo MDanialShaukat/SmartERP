@@ -15,6 +15,7 @@ namespace SmartERP.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Billing> Billings { get; set; }
         public DbSet<InventoryAssignment> InventoryAssignments { get; set; }
+        public DbSet<RecoveryPerson> RecoveryPersons { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -107,6 +108,12 @@ namespace SmartERP.Data
                       .HasForeignKey(b => b.CustomerId)
                       .OnDelete(DeleteBehavior.Restrict);
 
+                entity.HasOne(b => b.RecoveryPerson)
+                      .WithMany()
+                      .HasForeignKey(b => b.RecoveryPersonId)
+                      .OnDelete(DeleteBehavior.NoAction)
+                      .IsRequired(false);
+
                 entity.HasIndex(e => e.BillNumber).IsUnique();
 
                 // Configure audit relationships
@@ -141,6 +148,13 @@ namespace SmartERP.Data
                       .HasForeignKey(ia => ia.CreatedBy)
                       .OnDelete(DeleteBehavior.NoAction)
                       .IsRequired(false);
+            });
+
+            // Configure RecoveryPerson entity
+            modelBuilder.Entity<RecoveryPerson>(entity =>
+            {
+                entity.HasKey(rp => rp.Id);
+                entity.Property(rp => rp.PersonName).IsRequired().HasMaxLength(100);
             });
 
             // Note: Do NOT seed data in OnModelCreating - it causes initialization errors

@@ -78,6 +78,10 @@ public partial class App : Application
             await InitializeDatabaseAsync();
             _loggingService.LogInformation("Database initialized successfully", "App");
 
+            // Apply pending migrations
+            await ApplyMigrationsAsync();
+            _loggingService.LogInformation("Migrations applied successfully", "App");
+
             // Secure database
             await SecureDatabaseAsync();
 
@@ -168,6 +172,25 @@ public partial class App : Application
                 _loggingService?.LogError("Database security initialization failed", ex, "App");
             }
         });
+    }
+
+    private async Task ApplyMigrationsAsync()
+    {
+        try
+        {
+            var migrationService = ServiceProvider.GetRequiredService<IDatabaseMigrationService>();
+            var success = await migrationService.ApplyPendingMigrationsAsync();
+
+            if (!success)
+            {
+                _loggingService?.LogWarning("Some migrations may not have been applied successfully", "App");
+            }
+        }
+        catch (Exception ex)
+        {
+            _loggingService?.LogError("Failed to apply database migrations", ex, "App");
+            throw;
+        }
     }
 
     private void SetupExceptionHandlers()
@@ -266,6 +289,8 @@ public partial class App : Application
         services.AddSingleton<IAuthenticationService, AuthenticationService>();
         services.AddSingleton<IInventoryAssignmentReportService, InventoryAssignmentReportService>();
 
+        // Database Migration Service
+        services.AddSingleton<IDatabaseMigrationService, DatabaseMigrationService>();
 
         // Database Initializer
         services.AddTransient<DatabaseInitializer>();

@@ -360,7 +360,9 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Payment Method" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox x:Name="PaymentMethodComboBox" IsEditable="True">
+                        <ComboBox x:Name="PaymentMethodComboBox" 
+                                 IsEditable="True"
+                                 SelectionChanged="PaymentMethodComboBox_SelectionChanged">
                             <ComboBoxItem Content="Cash"/>
                             <ComboBoxItem Content="UPI"/>
                             <ComboBoxItem Content="Bank Transfer"/>
@@ -376,6 +378,40 @@
                         <TextBox x:Name="TransactionReferenceTextBox"/>
                     </StackPanel>
                 </Grid>
+
+                <!-- Recovery Person (Visible only for Cash payment) -->
+                <Border x:Name="RecoveryPersonPanel"
+                       Background="#FFF9E6"
+                       Padding="15"
+                       CornerRadius="5"
+                       Margin="0,0,0,15"
+                       BorderBrush="#FFE082"
+                       BorderThickness="1"
+                       Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock Text="Recovery Person" Style="{StaticResource LabelStyle}"/>
+                        <Grid Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <ComboBox x:Name="RecoveryPersonComboBox"
+                                     Grid.Column="0"
+                                     DisplayMemberPath="PersonName"
+                                     SelectedValuePath="Id"
+                                     Margin="0,0,0,0"/>
+
+                            <Button Grid.Column="2"
+                                   Content="➕ New"
+                                   Style="{StaticResource GenerateButtonStyle}"
+                                   Click="AddRecoveryPersonButton_Click"
+                                   Height="35"
+                                   VerticalAlignment="Top"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
                 <!-- Payment Date -->
                 <TextBlock Text="Payment Date" Style="{StaticResource LabelStyle}"/>

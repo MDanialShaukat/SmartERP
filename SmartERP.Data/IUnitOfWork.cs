@@ -12,8 +12,10 @@ namespace SmartERP.Data
         ICustomerRepository Customers { get; }
         IBillingRepository Billings { get; }
         IInventoryAssignmentRepository InventoryAssignments { get; }
+        IRecoveryPersonRepository RecoveryPersons { get; }
         
         Task<int> SaveChangesAsync();
+        int SaveChanges();
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();
         Task RollbackTransactionAsync();
