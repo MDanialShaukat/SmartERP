@@ -333,7 +333,10 @@ namespace SmartERP.UI.Views
         private void PaymentMethodComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Show Recovery Person panel only for Cash payment method
-            string selectedMethod = PaymentMethodComboBox.Text;
+            // Use SelectedItem instead of Text to get the current selection immediately
+            var selectedItem = PaymentMethodComboBox.SelectedItem as ComboBoxItem;
+            string selectedMethod = selectedItem?.Content.ToString() ?? "";
+            
             if (selectedMethod == "Cash")
             {
                 RecoveryPersonPanel.Visibility = System.Windows.Visibility.Visible;
