@@ -246,7 +246,7 @@
                 <Button Content="✅ Save" 
                        Style="{StaticResource SaveButtonStyle}"
                        Click="SaveButton_Click"/>
-                <Button Content="❎ Cancel" 
+                <Button Content="❌ Cancel" 
                        Style="{StaticResource CancelButtonStyle}"
                        Click="CancelButton_Click"/>
             </StackPanel>

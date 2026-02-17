@@ -12,6 +12,205 @@ namespace SmartERP.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // Ensure base tables exist first (EF Core may run this migration before InitialCreate).
+            // Create Users
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Username = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastLoginDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table => table.PrimaryKey("PK_Users", x => x.Id));
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Username",
+                table: "Users",
+                column: "Username",
+                unique: true);
+
+            // Create Inventories (User FKs NO ACTION to avoid multiple cascade paths)
+            migrationBuilder.CreateTable(
+                name: "Inventories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ItemName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Unit = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    PurchasePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    QuantityPurchased = table.Column<int>(type: "int", nullable: false),
+                    QuantityUsed = table.Column<int>(type: "int", nullable: false),
+                    QuantityRemaining = table.Column<int>(type: "int", nullable: false),
+                    TotalPurchaseAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Supplier = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    PurchaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Inventories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Inventories_Users_CreatedBy",
+                        column: x => x.CreatedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_Inventories_Users_LastModifiedBy",
+                        column: x => x.LastModifiedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                });
+            migrationBuilder.CreateIndex(
+                name: "IX_Inventories_CreatedBy",
+                table: "Inventories",
+                column: "CreatedBy");
+            migrationBuilder.CreateIndex(
+                name: "IX_Inventories_LastModifiedBy",
+                table: "Inventories",
+                column: "LastModifiedBy");
+
+            // Create Customers (no AreaId yet; User FKs NO ACTION)
+            migrationBuilder.CreateTable(
+                name: "Customers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    CustomerCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    PinCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    PackageType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PackageAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ConnectionType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    ConnectionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    AdditionalDetails = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    OutstandingBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Customers_Users_CreatedBy",
+                        column: x => x.CreatedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_Customers_Users_LastModifiedBy",
+                        column: x => x.LastModifiedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                });
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_CustomerCode",
+                table: "Customers",
+                column: "CustomerCode",
+                unique: true);
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_CreatedBy",
+                table: "Customers",
+                column: "CreatedBy");
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_LastModifiedBy",
+                table: "Customers",
+                column: "LastModifiedBy");
+
+            // Create Billings (no RecoveryPersonId yet)
+            migrationBuilder.CreateTable(
+                name: "Billings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BillNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    BillingMonth = table.Column<int>(type: "int", nullable: false),
+                    BillingYear = table.Column<int>(type: "int", nullable: false),
+                    BillAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PreviousDue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    BalanceAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaymentStatus = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    BillDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PaymentMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    TransactionReference = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Billings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Billings_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Billings_Users_CreatedBy",
+                        column: x => x.CreatedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_Billings_Users_LastModifiedBy",
+                        column: x => x.LastModifiedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                });
+            migrationBuilder.CreateIndex(
+                name: "IX_Billings_BillNumber",
+                table: "Billings",
+                column: "BillNumber",
+                unique: true);
+            migrationBuilder.CreateIndex(
+                name: "IX_Billings_CustomerId",
+                table: "Billings",
+                column: "CustomerId");
+            migrationBuilder.CreateIndex(
+                name: "IX_Billings_CreatedBy",
+                table: "Billings",
+                column: "CreatedBy");
+            migrationBuilder.CreateIndex(
+                name: "IX_Billings_LastModifiedBy",
+                table: "Billings",
+                column: "LastModifiedBy");
+
+            // Now create InventoryAssignments (depends on Users and Inventories)
             migrationBuilder.CreateTable(
                 name: "InventoryAssignments",
                 columns: table => new
@@ -68,8 +267,11 @@ namespace SmartERP.Data.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "InventoryAssignments");
+            migrationBuilder.DropTable(name: "InventoryAssignments");
+            migrationBuilder.DropTable(name: "Billings");
+            migrationBuilder.DropTable(name: "Customers");
+            migrationBuilder.DropTable(name: "Inventories");
+            migrationBuilder.DropTable(name: "Users");
         }
     }
 }

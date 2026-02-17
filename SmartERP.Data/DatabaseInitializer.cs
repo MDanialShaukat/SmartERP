@@ -17,15 +17,9 @@ namespace SmartERP.Data
         {
             try
             {
-                // Create database if it doesn't exist
-                await _context.Database.EnsureCreatedAsync();
-
-                // Apply any pending migrations
-                var pendingMigrations = await _context.Database.GetPendingMigrationsAsync();
-                if (pendingMigrations.Any())
-                {
-                    await _context.Database.MigrateAsync();
-                }
+                // Use only Migrate: creates DB if needed and applies all migrations in order.
+                // Do NOT use EnsureCreated - it would create tables that migrations also create, causing "object already exists" errors.
+                await _context.Database.MigrateAsync();
             }
             catch (Exception ex)
             {

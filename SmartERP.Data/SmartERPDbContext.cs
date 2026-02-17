@@ -155,6 +155,18 @@ namespace SmartERP.Data
             {
                 entity.HasKey(rp => rp.Id);
                 entity.Property(rp => rp.PersonName).IsRequired().HasMaxLength(100);
+
+                entity.HasOne<User>()
+                      .WithMany()
+                      .HasForeignKey(rp => rp.CreatedBy)
+                      .OnDelete(DeleteBehavior.NoAction)
+                      .IsRequired(false);
+
+                entity.HasOne<User>()
+                      .WithMany()
+                      .HasForeignKey(rp => rp.LastModifiedBy)
+                      .OnDelete(DeleteBehavior.NoAction)
+                      .IsRequired(false);
             });
 
             // Note: Do NOT seed data in OnModelCreating - it causes initialization errors

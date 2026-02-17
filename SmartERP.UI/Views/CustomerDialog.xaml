@@ -310,7 +310,7 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Connection Type" Style="{StaticResource LabelStyle}"/>
                         <ComboBox x:Name="ConnectionTypeComboBox" IsEditable="True">
-                            <ComboBoxItem Content="Fiber"/>
+                            <ComboBoxItem Content="Inernet"/>
                             <ComboBoxItem Content="Cable"/>
                             <ComboBoxItem Content="DSL"/>
                             <ComboBoxItem Content="Wireless"/>
