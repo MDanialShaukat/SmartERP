@@ -313,6 +313,10 @@ namespace SmartERP.UI.Views
                 BalanceAmount = b.BalanceAmount,
                 PaymentStatus = b.PaymentStatus,
                 PaymentMethod = b.PaymentMethod,
+                // Cash payments → recovery person name; online/other → transaction reference
+                CollectionDetail = b.PaymentMethod == "Cash"
+                    ? (b.RecoveryPerson?.PersonName ?? "—")
+                    : (!string.IsNullOrWhiteSpace(b.TransactionReference) ? b.TransactionReference : "—"),
                 DueDate = b.DueDate.ToString("dd/MM/yyyy")
             }).ToList();
 
@@ -331,6 +335,7 @@ namespace SmartERP.UI.Views
             AddDataGridColumn("Balance", "BalanceAmount", "C2");
             AddDataGridColumn("Status", "PaymentStatus");
             AddDataGridColumn("Payment Method", "PaymentMethod");
+            AddDataGridColumn("Collector / Ref#", "CollectionDetail");
             AddDataGridColumn("Due Date", "DueDate");
 
             // Show summary

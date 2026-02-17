@@ -243,7 +243,7 @@
                 Padding="20,15">
             <StackPanel Orientation="Horizontal" 
                        HorizontalAlignment="Right">
-                <Button Content="✅ Save" 
+                <Button Content="✔ Save" 
                        Style="{StaticResource SaveButtonStyle}"
                        Click="SaveButton_Click"/>
                 <Button Content="❌ Cancel" 

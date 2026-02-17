@@ -205,7 +205,7 @@
                 Padding="20,15">
             <StackPanel Orientation="Horizontal" 
                        HorizontalAlignment="Right">
-                <Button Content="✅ Assign" 
+                <Button Content="✔ Assign" 
                        Style="{StaticResource SaveButtonStyle}"
                        Click="AssignButton_Click"/>
                 <Button Content="❌ Cancel" 

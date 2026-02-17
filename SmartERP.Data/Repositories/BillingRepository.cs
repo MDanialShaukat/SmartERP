@@ -16,7 +16,8 @@ namespace SmartERP.Data.Repositories
         public async Task<IEnumerable<Billing>> GetByCustomerIdAsync(int customerId)
         {
             return await _dbSet
-                .Include(b => b.Customer)
+                .Include(b => b.Customer).ThenInclude(c => c!.Area)
+                .Include(b => b.RecoveryPerson)
                 .Include(b => b.CreatedByUser)
                 .Include(b => b.LastModifiedByUser)
                 .Where(b => b.CustomerId == customerId)
@@ -28,7 +29,8 @@ namespace SmartERP.Data.Repositories
         public async Task<IEnumerable<Billing>> GetPendingBillsAsync()
         {
             return await _dbSet
-                .Include(b => b.Customer)
+                .Include(b => b.Customer).ThenInclude(c => c!.Area)
+                .Include(b => b.RecoveryPerson)
                 .Include(b => b.CreatedByUser)
                 .Include(b => b.LastModifiedByUser)
                 .Where(b => b.PaymentStatus == "Pending" || b.PaymentStatus == "Partial")
@@ -41,7 +43,8 @@ namespace SmartERP.Data.Repositories
             var today = DateTime.Now.Date;
             
             return await _dbSet
-                .Include(b => b.Customer)
+                .Include(b => b.Customer).ThenInclude(c => c!.Area)
+                .Include(b => b.RecoveryPerson)
                 .Include(b => b.CreatedByUser)
                 .Include(b => b.LastModifiedByUser)
                 .Where(b => (b.PaymentStatus == "Pending" || b.PaymentStatus == "Partial") 
@@ -53,7 +56,8 @@ namespace SmartERP.Data.Repositories
         public async Task<IEnumerable<Billing>> GetBillsByMonthYearAsync(int month, int year)
         {
             return await _dbSet
-                .Include(b => b.Customer)
+                .Include(b => b.Customer).ThenInclude(c => c!.Area)
+                .Include(b => b.RecoveryPerson)
                 .Include(b => b.CreatedByUser)
                 .Include(b => b.LastModifiedByUser)
                 .Where(b => b.BillingMonth == month && b.BillingYear == year)
@@ -64,7 +68,8 @@ namespace SmartERP.Data.Repositories
         public async Task<Billing?> GetByBillNumberAsync(string billNumber)
         {
             return await _dbSet
-                .Include(b => b.Customer)
+                .Include(b => b.Customer).ThenInclude(c => c!.Area)
+                .Include(b => b.RecoveryPerson)
                 .Include(b => b.CreatedByUser)
                 .Include(b => b.LastModifiedByUser)
                 .FirstOrDefaultAsync(b => b.BillNumber == billNumber);
@@ -97,7 +102,8 @@ namespace SmartERP.Data.Repositories
         public override async Task<IEnumerable<Billing>> GetAllAsync()
         {
             return await _dbSet
-                .Include(b => b.Customer)
+                .Include(b => b.Customer).ThenInclude(c => c!.Area)
+                .Include(b => b.RecoveryPerson)
                 .Include(b => b.CreatedByUser)
                 .Include(b => b.LastModifiedByUser)
                 .ToListAsync();
@@ -106,7 +112,8 @@ namespace SmartERP.Data.Repositories
         public override async Task<Billing?> GetByIdAsync(int id)
         {
             return await _dbSet
-                .Include(b => b.Customer)
+                .Include(b => b.Customer).ThenInclude(c => c!.Area)
+                .Include(b => b.RecoveryPerson)
                 .Include(b => b.CreatedByUser)
                 .Include(b => b.LastModifiedByUser)
                 .FirstOrDefaultAsync(b => b.Id == id);
